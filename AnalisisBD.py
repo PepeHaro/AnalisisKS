@@ -375,21 +375,21 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                     st.write("### Tabla Comparativa de Ventas por Año")
                     st.dataframe(comparativa_pivot)
 
-    if opcion == "Investor Analysis":
-    # Subir archivo CSV del presupuesto
-    st.markdown("### Subir archivo CSV del presupuesto anual")
-    uploaded_presupuesto = st.file_uploader("Subir archivo de presupuesto anual", type="csv")
+if opcion == "Investor Analysis":
+# Subir archivo CSV del presupuesto
+st.markdown("### Subir archivo CSV del presupuesto anual")
+uploaded_presupuesto = st.file_uploader("Subir archivo de presupuesto anual", type="csv")
 
-    # Subir archivo CSV de los datos reales del mes
-    st.markdown("### Subir archivo CSV de los datos reales")
-    uploaded_reales = st.file_uploader("Subir archivo con los datos reales del mes", type="csv")
+# Subir archivo CSV de los datos reales del mes
+st.markdown("### Subir archivo CSV de los datos reales")
+uploaded_reales = st.file_uploader("Subir archivo con los datos reales del mes", type="csv")
 
-    # Función para leer CSV manejando problemas de codificación
-    def leer_csv_multiples_codificaciones(uploaded_file):
-        try:
-            return pd.read_csv(uploaded_file, encoding='utf-8')
-        except UnicodeDecodeError:
-            return pd.read_csv(uploaded_file, encoding='latin-1')
+# Función para leer CSV manejando problemas de codificación
+def leer_csv_multiples_codificaciones(uploaded_file):
+    try:
+        return pd.read_csv(uploaded_file, encoding='utf-8')
+    except UnicodeDecodeError:
+        return pd.read_csv(uploaded_file, encoding='latin-1')
 
     # Proceder solo si ambos archivos fueron subidos
     if uploaded_presupuesto and uploaded_reales:
