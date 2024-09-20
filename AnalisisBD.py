@@ -16,7 +16,7 @@ opcion = st.sidebar.selectbox(
 )
 
 # Mostrar la opción de subir archivo solo si se seleccionó una opción válida
-if opcion in ["Análisis Ventas", "Análisis Productos"]:
+if opcion in ["Sales Analysis", "SKU's Analysis"]:
     st.markdown(f"#### Subir archivo CSV para {opcion}")
     uploaded_file = st.file_uploader("Elige un archivo CSV", type="csv")
 
