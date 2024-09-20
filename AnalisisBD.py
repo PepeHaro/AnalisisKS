@@ -12,7 +12,7 @@ st.title("ANÁLISIS DE VENTAS MANUFACTURA KONCEPT")
 st.sidebar.title("Navegación")
 opcion = st.sidebar.selectbox(
     "Selecciona una pestaña:",
-    ["Sales Analysis", "SKU's Analysis, Investor Analysis"]
+    ["Sales Analysis", "SKU's Analysis", "Investor Analysis"]
 )
 
 # Mostrar la opción de subir archivo solo si se seleccionó una opción válida
@@ -74,7 +74,7 @@ if opcion in ["Análisis Ventas", "Análisis Productos"]:
         ultimo_mes = df[df["Año"] == ultimo_año]["Mes"].max()
 
 
-    if opcion == "Análisis Ventas":
+    if opcion == "Sales Analysis":
         # Gráfico de líneas de ventas totales por año
         st.subheader(f"VENTAS TOTALES POR AÑO:chart_with_upwards_trend:")
         ventas_totales = df.groupby("Año", as_index=False)["Importe"].sum()
@@ -241,7 +241,7 @@ if opcion in ["Análisis Ventas", "Análisis Productos"]:
 
 
 
-    elif opcion == "Análisis Productos":
+    elif opcion == "SKU's Analysis":
         # Agregar opción "Todos los clientes" al selectbox de cliente
         clientes_unicos = list(df["Cliete"].unique())
         clientes_unicos.insert(0, "Todos los clientes")
