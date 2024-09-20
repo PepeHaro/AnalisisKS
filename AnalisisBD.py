@@ -372,5 +372,5 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                     st.write("### Tabla Comparativa de Ventas por Año")
                     st.dataframe(comparativa_pivot)
 
-if opcion == "Investor Analysis"
+if opcion == "Investor Analysis":
     st.markdown("hola")
