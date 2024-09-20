@@ -384,15 +384,22 @@ if opcion == "Investor Analysis":
     st.markdown("### Subir archivo CSV de los datos reales")
     uploaded_reales = st.file_uploader("Subir archivo con los datos reales del mes", type="csv")
 
+    # Función para leer CSV manejando problemas de codificación
+    def leer_csv_multiples_codificaciones(uploaded_file):
+        try:
+            return pd.read_csv(uploaded_file, encoding='utf-8')
+        except UnicodeDecodeError:
+            return pd.read_csv(uploaded_file, encoding='latin-1')
+
     # Proceder solo si ambos archivos fueron subidos
     if uploaded_presupuesto and uploaded_reales:
-        # Leer archivo de presupuesto
-        df_presupuesto = pd.read_csv(uploaded_presupuesto)
+        # Leer archivo de presupuesto con manejo de codificación
+        df_presupuesto = leer_csv_multiples_codificaciones(uploaded_presupuesto)
         
-        # Leer archivo de datos reales
-        df_reales = pd.read_csv(uploaded_reales)
+        # Leer archivo de datos reales con manejo de codificación
+        df_reales = leer_csv_multiples_codificaciones(uploaded_reales)
 
-        # Verificar que ambos archivos tienen la columna común de 'Cuenta' (puede llamarse de otra manera en tu archivo)
+        # Verificar que ambos archivos tienen la columna común de 'Cuenta'
         if 'Cuenta' in df_presupuesto.columns and 'Cuenta' in df_reales.columns:
             
             # Crear una nueva columna en df_presupuesto para manejar las cuentas compuestas
@@ -436,6 +443,3 @@ if opcion == "Investor Analysis":
             st.error("Ambos archivos deben tener una columna 'Cuenta' para poder compararlos.")
     else:
         st.info("Por favor, sube ambos archivos para continuar.")
-    
-
-        
