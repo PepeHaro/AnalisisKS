@@ -6,7 +6,7 @@ from datetime import datetime
 import numpy as np
 
 # Título de la aplicación
-st.title("ANÁLISIS DE VENTAS MANUFACTURA KONCEPT")
+st.title("ANÁLISIS DE VENTAS MANUFACTURA PEPE")
 
 # Subir archivo CSV
 st.markdown("#### Subir archivo CSV")
