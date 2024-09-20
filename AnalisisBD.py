@@ -436,5 +436,5 @@ if opcion == "Investor Analysis":
 
     else:
         st.info("No hay resultados guardados.")
-Explicación del código:
+
     
