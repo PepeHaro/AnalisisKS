@@ -6,22 +6,7 @@ from datetime import datetime
 import numpy as np
 import sqlite3
 
-# Conexión a la base de datos SQLite
-conn = sqlite3.connect('resultados_trimestrales.db')
-c = conn.cursor()
 
-# Crear tabla si no existe
-c.execute('''
-CREATE TABLE IF NOT EXISTS resultados (
-    anio INTEGER,
-    trimestre INTEGER,
-    ingresos REAL,
-    costos REAL,
-    gastos_operativos REAL,
-    utilidad_neta REAL,
-    PRIMARY KEY (anio, trimestre)
-)
-''')
 
 # Título de la aplicación
 st.title("ANÁLISIS MANUFACTURA KONCEPT")
@@ -391,66 +376,6 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                     st.dataframe(comparativa_pivot)
 
 if opcion == "Investor Analysis":
-        # Formulario para ingresar los resultados trimestrales
-    st.subheader("Ingresar datos trimestrales")
-
-    # Inputs para el año y trimestre
-    anio = st.number_input("Año", min_value=2000, max_value=datetime.now().year, value=datetime.now().year)
-    trimestre = st.selectbox("Trimestre", [1, 2, 3, 4])
-
-    # Inputs para los datos financieros
-    ingresos = st.number_input("Ingresos", min_value=0.0, step=1000.0)
-    costos = st.number_input("Costos", min_value=0.0, step=1000.0)
-    gastos_operativos = st.number_input("Gastos Operativos", min_value=0.0, step=1000.0)
-    utilidad_neta = st.number_input("Utilidad Neta", min_value=0.0, step=1000.0)
-
-    # Botón para guardar los datos en la base de datos
-    if st.button("Guardar datos"):
-        # Insertar los datos en la tabla
-        c.execute('''
-            INSERT OR REPLACE INTO resultados (anio, trimestre, ingresos, costos, gastos_operativos, utilidad_neta)
-            VALUES (?, ?, ?, ?, ?, ?)''',
-            (anio, trimestre, ingresos, costos, gastos_operativos, utilidad_neta)
-        )
-        conn.commit()
-        st.success(f"Datos guardados para el año {anio} y trimestre {trimestre}.")
-
-    # Mostrar los datos guardados de trimestres anteriores
-    st.subheader("Resultados guardados")
-    c.execute("SELECT * FROM resultados ORDER BY anio, trimestre")
-    rows = c.fetchall()
-
-    if rows:
-        # Crear un DataFrame para mostrar los resultados en tabla
-        df_resultados = pd.DataFrame(rows, columns=["Año", "Trimestre", "Ingresos", "Costos", "Gastos Operativos", "Utilidad Neta"])
-        st.dataframe(df_resultados)
-
-        # Visualización gráfica de los resultados por trimestre
-        st.subheader("Visualización de resultados")
-        chart_data = pd.DataFrame(rows, columns=["Año", "Trimestre", "Ingresos", "Costos", "Gastos Operativos", "Utilidad Neta"])
-        chart_data["Trimestre"] = chart_data["Año"].astype(str) + " Q" + chart_data["Trimestre"].astype(str)
-
-        # Crear un gráfico de barras para comparar los ingresos y utilidades por trimestre
-        bar_chart = alt.Chart(chart_data).mark_bar().encode(
-            x='Trimestre:N',
-            y='Ingresos:Q',
-            color=alt.value('skyblue')
-        ).properties(
-            title="Ingresos por Trimestre"
-        )
-        st.altair_chart(bar_chart, use_container_width=True)
-
-        # Gráfico adicional para la utilidad neta
-        line_chart = alt.Chart(chart_data).mark_line(point=True).encode(
-            x='Trimestre:N',
-            y='Utilidad Neta:Q',
-            color=alt.value('orange')
-        ).properties(
-            title="Utilidad Neta por Trimestre"
-        )
-        st.altair_chart(line_chart, use_container_width=True)
-
-    else:
-        st.info("No hay resultados guardados.")
+ 
 
     
