@@ -6,6 +6,22 @@ from datetime import datetime
 import numpy as np
 import sqlite3
 
+# Conexión a la base de datos SQLite
+conn = sqlite3.connect('resultados_trimestrales.db')
+c = conn.cursor()
+
+# Crear tabla si no existe
+c.execute('''
+CREATE TABLE IF NOT EXISTS resultados (
+    anio INTEGER,
+    trimestre INTEGER,
+    ingresos REAL,
+    costos REAL,
+    gastos_operativos REAL,
+    utilidad_neta REAL,
+    PRIMARY KEY (anio, trimestre)
+)
+''')
 
 # Título de la aplicación
 st.title("ANÁLISIS MANUFACTURA KONCEPT")
