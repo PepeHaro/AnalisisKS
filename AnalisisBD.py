@@ -72,8 +72,6 @@ if opcion in ["Análisis Ventas", "Análisis Productos"]:
         # Encontrar el último año y mes en el conjunto de datos
         ultimo_año = df["Año"].max()
         ultimo_mes = df[df["Año"] == ultimo_año]["Mes"].max()
-        else:
-    st.markdown("Selecciona una pestaña para comenzar el análisis.")
 
 
     if opcion == "Análisis Ventas":
