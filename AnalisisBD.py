@@ -6,7 +6,7 @@ from datetime import datetime
 import numpy as np
 
 # Título de la aplicación
-st.title("ANÁLISIS DE VENTAS MANUFACTURA KONCEPT")
+st.title("ANÁLISIS MANUFACTURA KONCEPT")
 
 # Barra lateral para la selección de pestañas
 st.sidebar.title("Navegación")
@@ -240,7 +240,6 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             st.altair_chart(bars_mes + text_mes, use_container_width=True)
 
 
-
     elif opcion == "SKU's Analysis":
         # Agregar opción "Todos los clientes" al selectbox de cliente
         clientes_unicos = list(df["Cliete"].unique())
@@ -373,3 +372,5 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                     st.write("### Tabla Comparativa de Ventas por Año")
                     st.dataframe(comparativa_pivot)
 
+if opcion == "Investor Analysis"
+    st.markdown("hola")
