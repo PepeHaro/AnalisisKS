@@ -392,60 +392,60 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             return pd.read_csv(uploaded_file, encoding='latin-1')
 
     # Proceder solo si ambos archivos fueron subidos
-        if uploaded_presupuesto and uploaded_reales:
-            # Leer archivo de presupuesto con manejo de codificación
-            df_presupuesto = leer_csv_multiples_codificaciones(uploaded_presupuesto)
-            
-            # Leer archivo de datos reales con manejo de codificación
-            df_reales = leer_csv_multiples_codificaciones(uploaded_reales)
+    if uploaded_presupuesto and uploaded_reales:
+        # Leer archivo de presupuesto con manejo de codificación
+        df_presupuesto = leer_csv_multiples_codificaciones(uploaded_presupuesto)
+        
+        # Leer archivo de datos reales con manejo de codificación
+        df_reales = leer_csv_multiples_codificaciones(uploaded_reales)
 
-            # Verificar que los DataFrames no estén vacíos
-            if df_presupuesto.empty:
-                st.error("El archivo de presupuesto está vacío. Por favor, sube un archivo válido.")
-            elif df_reales.empty:
-                st.error("El archivo de datos reales está vacío. Por favor, sube un archivo válido.")
-            else:
-                # Verificar que ambos archivos tienen la columna común de 'Cuenta'
-                if 'Cuenta' in df_presupuesto.columns and 'Cuenta' in df_reales.columns:
-                    
-                    # Crear una nueva columna en df_presupuesto para manejar las cuentas compuestas
-                    def sumar_cuentas_compuestas(fila):
-                        if '/' in fila['Cuenta']:  # Identificar cuentas compuestas
-                            cuentas = fila['Cuenta'].split('/')  # Separar los diferentes códigos
-                            cuentas = [c.strip() for c in cuentas]  # Limpiar espacios en blanco
-                            return df_reales[df_reales['Cuenta'].isin(cuentas)]['Monto_Reales'].sum()
-                        else:
-                            # Si no es una cuenta compuesta, retornar el valor normal
-                            return df_reales[df_reales['Cuenta'] == fila['Cuenta']]['Monto_Reales'].sum()
-
-                    # Crear columna para valores reales sumados (o individuales si no es compuesta)
-                    df_presupuesto['Monto_Reales'] = df_presupuesto.apply(sumar_cuentas_compuestas, axis=1)
-
-                    # Calcular la variación entre presupuesto y valores reales
-                    df_presupuesto['Variación'] = df_presupuesto['Monto_Reales'] - df_presupuesto['Monto_Presupuesto']
-                    df_presupuesto['Variación (%)'] = (df_presupuesto['Variación'] / df_presupuesto['Monto_Presupuesto']) * 100
-
-                    # Mostrar una tabla con las variaciones calculadas
-                    st.markdown("### Variaciones Calculadas")
-                    st.dataframe(df_presupuesto[['Cuenta', 'Monto_Presupuesto', 'Monto_Reales', 'Variación', 'Variación (%)']])
-
-                    # Visualización atractiva con gráficos (Altair)
-                    st.markdown("### Gráfico de Variación de Cuentas")
-                    
-                    # Crear un gráfico de barras para visualizar la variación
-                    chart = alt.Chart(df_presupuesto).mark_bar().encode(
-                        x=alt.X('Cuenta:N', title='Código de Cuenta'),
-                        y=alt.Y('Variación:Q', title='Variación en Valores'),
-                        tooltip=['Cuenta', 'Monto_Presupuesto', 'Monto_Reales', 'Variación', 'Variación (%)']
-                    ).properties(
-                        width=700,
-                        height=400,
-                        title='Variación de Cuentas respecto al Presupuesto'
-                    )
-                    
-                    st.altair_chart(chart)
-                
-                else:
-                    st.error("Ambos archivos deben tener una columna 'Cuenta' para poder compararlos.")
+        # Verificar que los DataFrames no estén vacíos
+        if df_presupuesto.empty:
+            st.error("El archivo de presupuesto está vacío. Por favor, sube un archivo válido.")
+        elif df_reales.empty:
+            st.error("El archivo de datos reales está vacío. Por favor, sube un archivo válido.")
         else:
-            st.info("Por favor, sube ambos archivos para continuar.")
+            # Verificar que ambos archivos tienen la columna común de 'Cuenta'
+            if 'Cuenta' in df_presupuesto.columns and 'Cuenta' in df_reales.columns:
+                
+                # Crear una nueva columna en df_presupuesto para manejar las cuentas compuestas
+                def sumar_cuentas_compuestas(fila):
+                    if '/' in fila['Cuenta']:  # Identificar cuentas compuestas
+                        cuentas = fila['Cuenta'].split('/')  # Separar los diferentes códigos
+                        cuentas = [c.strip() for c in cuentas]  # Limpiar espacios en blanco
+                        return df_reales[df_reales['Cuenta'].isin(cuentas)]['Monto_Reales'].sum()
+                    else:
+                        # Si no es una cuenta compuesta, retornar el valor normal
+                        return df_reales[df_reales['Cuenta'] == fila['Cuenta']]['Monto_Reales'].sum()
+
+                # Crear columna para valores reales sumados (o individuales si no es compuesta)
+                df_presupuesto['Monto_Reales'] = df_presupuesto.apply(sumar_cuentas_compuestas, axis=1)
+
+                # Calcular la variación entre presupuesto y valores reales
+                df_presupuesto['Variación'] = df_presupuesto['Monto_Reales'] - df_presupuesto['Monto_Presupuesto']
+                df_presupuesto['Variación (%)'] = (df_presupuesto['Variación'] / df_presupuesto['Monto_Presupuesto']) * 100
+
+                # Mostrar una tabla con las variaciones calculadas
+                st.markdown("### Variaciones Calculadas")
+                st.dataframe(df_presupuesto[['Cuenta', 'Monto_Presupuesto', 'Monto_Reales', 'Variación', 'Variación (%)']])
+
+                # Visualización atractiva con gráficos (Altair)
+                st.markdown("### Gráfico de Variación de Cuentas")
+                
+                # Crear un gráfico de barras para visualizar la variación
+                chart = alt.Chart(df_presupuesto).mark_bar().encode(
+                    x=alt.X('Cuenta:N', title='Código de Cuenta'),
+                    y=alt.Y('Variación:Q', title='Variación en Valores'),
+                    tooltip=['Cuenta', 'Monto_Presupuesto', 'Monto_Reales', 'Variación', 'Variación (%)']
+                ).properties(
+                    width=700,
+                    height=400,
+                    title='Variación de Cuentas respecto al Presupuesto'
+                )
+                
+                st.altair_chart(chart)
+            
+            else:
+                st.error("Ambos archivos deben tener una columna 'Cuenta' para poder compararlos.")
+    else:
+        st.info("Por favor, sube ambos archivos para continuar.")
