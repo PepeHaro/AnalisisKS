@@ -381,36 +381,37 @@ if opcion == "Investor Analysis":
 
     if uploaded_odoo is not None:
         try:
-            # Cargar el archivo con encoding utf-8
+            # Intentar cargar con utf-8
             df_odoo = pd.read_csv(uploaded_odoo, encoding='utf-8')
+            # Limpieza de datos: mantén solo las columnas relevantes
+            columnas_relevantes = ["Cuenta", "Ganancias netas", "Balance"]
+            df_odoo = df_odoo[columnas_relevantes].dropna()
+            st.write("Datos limpios de Odoo Actual:")
+            st.dataframe(df_odoo)
         except UnicodeDecodeError:
-            # Intentar con otro encoding si ocurre un error
-            df_odoo = pd.read_csv(uploaded_odoo, encoding='latin1')
-
-        # Limpieza de datos: mantén solo las columnas relevantes
-        columnas_relevantes = ["Cuenta", "Ganancias netas", "Balance"]
-        df_odoo = df_odoo[columnas_relevantes]
-
-        # Filtrar filas si es necesario (ejemplo: eliminar filas con datos faltantes)
-        df_odoo = df_odoo.dropna()
-
-        st.write("Datos limpios de Odoo Actual:")
-        st.dataframe(df_odoo)
+            st.error("Error de codificación al cargar el archivo Odoo. Intenta con otro archivo o revisa el formato.")
+        except KeyError:
+            st.error("Error: Las columnas 'Cuenta', 'Ganancias netas' o 'Balance' no se encontraron en el archivo.")
+        except pd.errors.EmptyDataError:
+            st.error("Error: El archivo Odoo Actual está vacío.")
+        except Exception as e:
+            st.error(f"Error inesperado al cargar el archivo Odoo: {e}")
 
     st.markdown(f"#### Subir Presupuesto Anual")
     uploaded_presupuesto = st.file_uploader("Subir archivo de Presupuesto Anual (CSV)", type="csv")
 
     if uploaded_presupuesto is not None:
         try:
-            # Cargar el archivo de presupuesto con utf-8
+            # Intentar cargar con utf-8
             df_presupuesto = pd.read_csv(uploaded_presupuesto, encoding='utf-8')
+            st.write("Datos del Presupuesto Anual:")
+            st.dataframe(df_presupuesto)
         except UnicodeDecodeError:
-            # Intentar otro encoding en caso de error
-            df_presupuesto = pd.read_csv(uploaded_presupuesto, encoding='latin1')
-
-        st.write("Datos del Presupuesto Anual:")
-        st.dataframe(df_presupuesto)
-
+            st.error("Error de codificación al cargar el archivo de Presupuesto. Intenta con otro archivo o revisa el formato.")
+        except pd.errors.EmptyDataError:
+            st.error("Error: El archivo de Presupuesto está vacío.")
+        except Exception as e:
+            st.error(f"Error inesperado al cargar el archivo de Presupuesto: {e}")
     
 
         
