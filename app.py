@@ -386,7 +386,7 @@ def expand_accounts(account):
         return [base_account] + expanded_accounts
     return [account]
 
-import openpyxl
+
 if opcion == "Investor Analysis":
     st.markdown(f"#### Subir datos de Odoo Actual")
 
