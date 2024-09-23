@@ -411,15 +411,22 @@ if opcion == "Investor Analysis":
                     # Cargar el archivo de presupuesto
                     df_presupuesto = pd.read_csv(uploaded_presupuesto, encoding='utf-8')
 
+                    # Eliminar columnas completamente vacías
+                    df_presupuesto = df_presupuesto.dropna(how='all', axis=1)
+
                     # Eliminar filas completamente vacías
-                    df_presupuesto = df_presupuesto.dropna(how='all')
+                    df_presupuesto = df_presupuesto.dropna(how='all', axis=0)
 
-                    # Renombrar columnas
-                    column_names = ["Cuenta", "Concepto"] + [f"Mes {i}" for i in range(1, 13)]
-                    df_presupuesto.columns = column_names[:len(df_presupuesto.columns)]
+                    # Verificar que hay al menos 14 columnas después de la limpieza
+                    if df_presupuesto.shape[1] >= 14:
+                        # Renombrar columnas
+                        column_names = ["Cuenta", "Concepto"] + [f"Mes {i}" for i in range(1, 13)]
+                        df_presupuesto.columns = column_names[:df_presupuesto.shape[1]]
 
-                    st.write("Datos limpios del Presupuesto Anual:")
-                    st.dataframe(df_presupuesto)
+                        st.write("Datos limpios del Presupuesto Anual:")
+                        st.dataframe(df_presupuesto)
+                    else:
+                        st.error("Error: El archivo de presupuesto no tiene suficientes columnas.")
 
                 except pd.errors.EmptyDataError:
                     st.error("Error: El archivo de Presupuesto está vacío.")
