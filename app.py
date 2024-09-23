@@ -384,12 +384,12 @@ if opcion == "Investor Analysis":
     # Selector de mes
     mes = st.selectbox("Selecciona el mes de Odoo:", ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"])
 
-    uploaded_odoo = st.file_uploader("Subir archivo Odoo Actual (Excel)", type=["xlsx", "xls"])
+    uploaded_odoo = st.file_uploader("Subir archivo Odoo Actual (CSV)", type="csv")
 
     if uploaded_odoo is not None:
         try:
-            df_odoo = pd.read_excel(uploaded_odoo)
-            df_odoo.columns = ["Cuenta", "Concepto", "Importe"]
+            df_odoo = pd.read_csv(uploaded_odoo, encoding='utf-8')
+            df_odoo.columns = ["Cuenta", "Concepto", "Importe"]  # Renombrar columnas
             df_odoo = df_odoo.dropna()
 
             st.write("Datos limpios de Odoo Actual:")
