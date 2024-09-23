@@ -398,6 +398,19 @@ def expand_accounts(account):
     else:
         return [account]  # Devuelve el valor original si no es una cadena
 
+import pandas as pd
+import streamlit as st
+
+def expand_accounts(account):
+    """Expande cuentas en el formato que contiene '/'."""
+    if isinstance(account, str):  # Verifica si es una cadena
+        parts = account.split('/')
+        base_account = parts[0]
+        expanded_accounts = [base_account + f".{i.zfill(2)}" for i in parts[1:]]
+        return [base_account] + expanded_accounts
+    else:
+        return [account]  # Devuelve el valor original si no es una cadena
+
 if opcion == "Investor Analysis":
     st.markdown(f"#### Subir datos de Odoo Actual")
     
@@ -432,15 +445,21 @@ if opcion == "Investor Analysis":
                     df_presupuesto_exploded = df_presupuesto.explode('Cuentas Expandidas')
 
                     # Realizar la comparación
-                    df_comparacion = df_odoo.merge(df_presupuesto_exploded, left_on='Cuenta', right_on='Cuentas Expandidas', how='inner')
+                    df_comparacion = df_odoo.merge(df_presupuesto_exploded, left_on='Cuenta', right_on='Cuentas Expandidas', how='inner', suffixes=('', '_y'))
+
+                    # Verifica los nombres de las columnas después del merge
+                    st.write("Columnas del DataFrame de comparación:", df_comparacion.columns)
 
                     # Calcular variaciones
-                    df_comparacion['Variación en Dinero'] = df_comparacion['Importe'] - df_comparacion['Importe_y']  # Ajusta 'Importe_y' según tu archivo
-                    df_comparacion['Variación %'] = (df_comparacion['Variación en Dinero'] / df_comparacion['Importe_y']).fillna(0) * 100  # Ajusta 'Importe_y' según tu archivo
-                    
-                    st.write(f"Comparación de variaciones para {mes}:")
-                    st.dataframe(df_comparacion[['Cuenta', 'Concepto_x', 'Importe', 'Importe_y', 'Variación en Dinero', 'Variación %']])
-                    
+                    if 'Importe' in df_comparacion.columns and 'Importe_y' in df_comparacion.columns:
+                        df_comparacion['Variación en Dinero'] = df_comparacion['Importe'] - df_comparacion['Importe_y']
+                        df_comparacion['Variación %'] = (df_comparacion['Variación en Dinero'] / df_comparacion['Importe_y']).fillna(0) * 100
+
+                        st.write(f"Comparación de variaciones para {mes}:")
+                        st.dataframe(df_comparacion[['Cuenta', 'Concepto', 'Importe', 'Importe_y', 'Variación en Dinero', 'Variación %']])
+                    else:
+                        st.error("Las columnas necesarias para calcular las variaciones no se encontraron.")
+
                 except pd.errors.EmptyDataError:
                     st.error("Error: El archivo de Presupuesto está vacío.")
                 except Exception as e:
