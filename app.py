@@ -375,21 +375,54 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                     st.write("### Tabla Comparativa de Ventas por Año")
                     st.dataframe(comparativa_pivot)
 
+def expand_accounts(account):
+    """Expande cuentas en el formato que contiene '/'."""
+    parts = account.split('/')
+    base_account = parts[0]
+    expanded_accounts = [base_account + f".{i.zfill(2)}" for i in parts[1:]]
+    return [base_account] + expanded_accounts
+
 if opcion == "Investor Analysis":
     st.markdown(f"#### Subir datos de Odoo Actual")
     uploaded_odoo = st.file_uploader("Subir archivo Odoo Actual (CSV)", type="csv")
 
     if uploaded_odoo is not None:
         try:
-            # Intentar cargar con utf-8
             df_odoo = pd.read_csv(uploaded_odoo, encoding='utf-8')
-            # Renombrar columnas
             df_odoo.columns = ["Cuenta", "Concepto", "Importe"]
-            # Limpieza de datos: mantén solo las columnas relevantes
-            columnas_relevantes = ["Cuenta", "Concepto", "Importe"]
-            df_odoo = df_odoo[columnas_relevantes].dropna()
+            df_odoo = df_odoo.dropna()
+
             st.write("Datos limpios de Odoo Actual:")
             st.dataframe(df_odoo)
+
+            st.markdown(f"#### Subir Presupuesto Anual")
+            uploaded_presupuesto = st.file_uploader("Subir archivo de Presupuesto Anual (CSV)", type="csv")
+
+            if uploaded_presupuesto is not None:
+                try:
+                    df_presupuesto = pd.read_csv(uploaded_presupuesto, encoding='utf-8')
+                    df_presupuesto = df_presupuesto.dropna(how='all', axis=1)
+                    df_presupuesto = df_presupuesto.loc[:, ~df_presupuesto.columns.str.contains('^Unnamed')]
+                    
+                    # Expandir cuentas del presupuesto
+                    df_presupuesto['Cuentas Expandidas'] = df_presupuesto['Cuenta'].apply(expand_accounts)
+                    df_presupuesto_exploded = df_presupuesto.explode('Cuentas Expandidas')
+
+                    # Realizar la comparación
+                    df_comparacion = df_odoo.merge(df_presupuesto_exploded, left_on='Cuenta', right_on='Cuentas Expandidas', how='inner')
+
+                    # Calcular variaciones
+                    df_comparacion['Variación en Dinero'] = df_comparacion['Importe'] - df_comparacion['Importe_y']  # Ajusta 'Importe_y' según tu archivo
+                    df_comparacion['Variación %'] = (df_comparacion['Variación en Dinero'] / df_comparacion['Importe_y']).fillna(0) * 100  # Ajusta 'Importe_y' según tu archivo
+
+                    st.write("Comparación de variaciones:")
+                    st.dataframe(df_comparacion[['Cuenta', 'Concepto_x', 'Importe', 'Importe_y', 'Variación en Dinero', 'Variación %']])
+                    
+                except pd.errors.EmptyDataError:
+                    st.error("Error: El archivo de Presupuesto está vacío.")
+                except Exception as e:
+                    st.error(f"Error inesperado al cargar el archivo de Presupuesto: {e}")
+
         except UnicodeDecodeError:
             st.error("Error de codificación al cargar el archivo Odoo. Intenta con otro archivo o revisa el formato.")
         except KeyError:
@@ -398,23 +431,3 @@ if opcion == "Investor Analysis":
             st.error("Error: El archivo Odoo Actual está vacío.")
         except Exception as e:
             st.error(f"Error inesperado al cargar el archivo Odoo: {e}")
-
-    st.markdown(f"#### Subir Presupuesto Anual")
-    uploaded_presupuesto = st.file_uploader("Subir archivo de Presupuesto Anual (CSV)", type="csv")
-
-    if uploaded_presupuesto is not None:
-        try:
-            # Intentar cargar con utf-8
-            df_presupuesto = pd.read_csv(uploaded_presupuesto, encoding='utf-8')
-            # Eliminar columnas "Unnamed"
-            df_presupuesto = df_presupuesto.dropna(how='all', axis=1)  # Elimina columnas completamente vacías
-            df_presupuesto = df_presupuesto.loc[:, ~df_presupuesto.columns.str.contains('^Unnamed')]  # Elimina columnas "Unnamed"
-
-            st.write("Datos del Presupuesto Anual:")
-            st.dataframe(df_presupuesto)
-        except UnicodeDecodeError:
-            st.error("Error de codificación al cargar el archivo de Presupuesto. Intenta con otro archivo o revisa el formato.")
-        except pd.errors.EmptyDataError:
-            st.error("Error: El archivo de Presupuesto está vacío.")
-        except Exception as e:
-            st.error(f"Error inesperado al cargar el archivo de Presupuesto: {e}")
