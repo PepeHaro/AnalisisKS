@@ -405,33 +405,6 @@ if opcion == "Investor Analysis":
             st.write("Datos limpios de Odoo Actual:")
             st.dataframe(df_odoo)
 
-            st.markdown(f"#### Subir Presupuesto Anual")
-            # Cargar archivo de Presupuesto (Excel)
-            uploaded_presupuesto = st.file_uploader("Subir archivo de Presupuesto Anual (Excel)", type=["xlsx", "xls"])
-
-            if uploaded_presupuesto is not None:
-                try:
-                    # Cargar el archivo de presupuesto
-                    df_presupuesto = pd.read_excel(uploaded_presupuesto)
-
-                    # Eliminar columnas completamente vacías
-                    df_presupuesto = df_presupuesto.dropna(how='all', axis=1)
-
-                    # Eliminar filas completamente vacías
-                    df_presupuesto = df_presupuesto.dropna(how='all', axis=0)
-
-                    # Renombrar columnas
-                    column_names = ["Cuenta", "Concepto", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
-                    df_presupuesto.columns = column_names[:df_presupuesto.shape[1]]
-
-                    st.write("Datos limpios del Presupuesto Anual:")
-                    st.dataframe(df_presupuesto)
-
-                except pd.errors.EmptyDataError:
-                    st.error("Error: El archivo de Presupuesto está vacío.")
-                except Exception as e:
-                    st.error(f"Error inesperado al cargar el archivo de Presupuesto: {e}")
-
         except UnicodeDecodeError:
             st.error("Error de codificación al cargar el archivo Odoo. Intenta con otro archivo o revisa el formato.")
         except KeyError:
@@ -440,3 +413,31 @@ if opcion == "Investor Analysis":
             st.error("Error: El archivo Odoo Actual está vacío.")
         except Exception as e:
             st.error(f"Error inesperado al cargar el archivo Odoo: {e}")
+
+    st.markdown(f"#### Subir Presupuesto Anual")
+    
+    # Cargar archivo de Presupuesto (Excel)
+    uploaded_presupuesto = st.file_uploader("Subir archivo de Presupuesto Anual (Excel)", type=["xlsx", "xls"])
+
+    if uploaded_presupuesto is not None:
+        try:
+            # Cargar el archivo de presupuesto
+            df_presupuesto = pd.read_excel(uploaded_presupuesto)
+
+            # Eliminar columnas completamente vacías
+            df_presupuesto = df_presupuesto.dropna(how='all', axis=1)
+
+            # Eliminar filas completamente vacías
+            df_presupuesto = df_presupuesto.dropna(how='all', axis=0)
+
+            # Renombrar columnas
+            column_names = ["Cuenta", "Concepto", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+            df_presupuesto.columns = column_names[:df_presupuesto.shape[1]]
+
+            st.write("Datos limpios del Presupuesto Anual:")
+            st.dataframe(df_presupuesto)
+
+        except pd.errors.EmptyDataError:
+            st.error("Error: El archivo de Presupuesto está vacío.")
+        except Exception as e:
+            st.error(f"Error inesperado al cargar el archivo de Presupuesto: {e}")
