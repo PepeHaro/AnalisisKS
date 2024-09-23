@@ -404,6 +404,10 @@ if opcion == "Investor Analysis":
         try:
             # Intentar cargar con utf-8
             df_presupuesto = pd.read_csv(uploaded_presupuesto, encoding='utf-8')
+            # Eliminar columnas "Unnamed"
+            df_presupuesto = df_presupuesto.dropna(how='all', axis=1)  # Elimina columnas completamente vacías
+            df_presupuesto = df_presupuesto.loc[:, ~df_presupuesto.columns.str.contains('^Unnamed')]  # Elimina columnas "Unnamed"
+
             st.write("Datos del Presupuesto Anual:")
             st.dataframe(df_presupuesto)
         except UnicodeDecodeError:
@@ -412,6 +416,7 @@ if opcion == "Investor Analysis":
             st.error("Error: El archivo de Presupuesto está vacío.")
         except Exception as e:
             st.error(f"Error inesperado al cargar el archivo de Presupuesto: {e}")
+
     
 
         
