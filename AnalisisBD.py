@@ -15,7 +15,7 @@ st.title("ANÁLISIS MANUFACTURA KONCEPT")
 st.sidebar.title("Navegación")
 opcion = st.sidebar.selectbox(
     "Selecciona una pestaña:",
-    ["Sales Analysis", "SKU's Analysis", "Investor Analysis12"]
+    ["Sales Analysis", "SKU's Analysis", "Investor Analysis"]
 )
 
 # Mostrar la opción de subir archivo solo si se seleccionó una opción válida
