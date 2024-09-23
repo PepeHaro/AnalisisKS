@@ -375,44 +375,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                     st.write("### Tabla Comparativa de Ventas por Año")
                     st.dataframe(comparativa_pivot)
 
-import pandas as pd
-import streamlit as st
 
-def expand_accounts(account):
-    """Expande cuentas en el formato que contiene '/'."""
-    if isinstance(account, str):  # Verifica si es una cadena
-        parts = account.split('/')
-        base_account = parts[0]
-        expanded_accounts = [base_account + f".{i.zfill(2)}" for i in parts[1:]]
-        return [base_account] + expanded_accounts
-    else:
-        return [account]  # Devuelve el valor original si no es una cadena
-
-def expand_accounts(account):
-    """Expande cuentas en el formato que contiene '/'."""
-    if isinstance(account, str):  # Verifica si es una cadena
-        parts = account.split('/')
-        base_account = parts[0]
-        expanded_accounts = [base_account + f".{i.zfill(2)}" for i in parts[1:]]
-        return [base_account] + expanded_accounts
-    else:
-        return [account]  # Devuelve el valor original si no es una cadena
-
-import pandas as pd
-import streamlit as st
-
-def expand_accounts(account):
-    """Expande cuentas en el formato que contiene '/'."""
-    if isinstance(account, str):  # Verifica si es una cadena
-        parts = account.split('/')
-        base_account = parts[0]
-        expanded_accounts = [base_account + f".{i.zfill(2)}" for i in parts[1:]]
-        return [base_account] + expanded_accounts
-    else:
-        return [account]  # Devuelve el valor original si no es una cadena
-
-import pandas as pd
-import streamlit as st
 
 def expand_accounts(account):
     """Expande cuentas en el formato que contiene '/'."""
@@ -452,15 +415,17 @@ if opcion == "Investor Analysis":
                     # Asegúrate de que la columna 'Cuenta' sea de tipo string
                     df_presupuesto['Cuenta'] = df_presupuesto['Cuenta'].astype(str)
 
-                    # Determina el nombre de la columna del mes basado en la selección
-                    mes_columna = mes.upper()  # Convierte el mes a mayúsculas para hacer la comparación
+                    # Limpiar espacios y caracteres en las columnas del mes
+                    mes_columna = mes.upper()
+                    df_presupuesto[mes_columna] = df_presupuesto[mes_columna].replace({'-': '0', ',': '', ' ': ''}, regex=True)
 
-                    if mes_columna not in df_presupuesto.columns:
-                        st.error(f"Error: La columna para el mes '{mes_columna}' no se encuentra en el archivo de presupuesto.")
+                    # Convertir a float
+                    df_presupuesto[mes_columna] = pd.to_numeric(df_presupuesto[mes_columna], errors='coerce')
+
+                    # Verifica si la columna del mes es válida
+                    if df_presupuesto[mes_columna].isnull().all():
+                        st.error(f"Error: La columna para el mes '{mes_columna}' no contiene valores válidos.")
                     else:
-                        # Reemplazar valores vacíos y convertir a float
-                        df_presupuesto[mes_columna] = df_presupuesto[mes_columna].replace({'-': '0', ',': ''}, regex=True).astype(float)
-
                         # Expandir cuentas del presupuesto
                         df_presupuesto['Cuentas Expandidas'] = df_presupuesto['Cuenta'].apply(expand_accounts)
                         df_presupuesto_exploded = df_presupuesto.explode('Cuentas Expandidas')
