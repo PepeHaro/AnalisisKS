@@ -390,7 +390,7 @@ if opcion == "Investor Analysis":
     st.markdown(f"#### Subir datos de Odoo Actual")
 
     # Selector de mes
-    mes = st.selectbox("Selecciona el mes de Odoo:", ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"])
+    mes = st.selectbox("Selecciona el mes de Odoo:", ["hola", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"])
 
     uploaded_odoo = st.file_uploader("Subir archivo Odoo Actual (CSV)", type="csv")
 
