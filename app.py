@@ -384,6 +384,7 @@ if opcion == "Investor Analysis":
     # Selector de mes
     mes = st.selectbox("Selecciona el mes de Odoo:", ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"])
 
+    # Cargar archivo de Odoo (CSV)
     uploaded_odoo = st.file_uploader("Subir archivo Odoo Actual (CSV)", type="csv")
 
     if uploaded_odoo is not None:
@@ -396,6 +397,7 @@ if opcion == "Investor Analysis":
             st.dataframe(df_odoo)
 
             st.markdown(f"#### Subir Presupuesto Anual")
+            # Cargar archivo de Presupuesto (Excel)
             uploaded_presupuesto = st.file_uploader("Subir archivo de Presupuesto Anual (Excel)", type=["xlsx", "xls"])
 
             if uploaded_presupuesto is not None:
