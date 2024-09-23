@@ -375,12 +375,18 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                     st.write("### Tabla Comparativa de Ventas por Año")
                     st.dataframe(comparativa_pivot)
 
+import pandas as pd
+import streamlit as st
+
 def expand_accounts(account):
     """Expande cuentas en el formato que contiene '/'."""
-    parts = account.split('/')
-    base_account = parts[0]
-    expanded_accounts = [base_account + f".{i.zfill(2)}" for i in parts[1:]]
-    return [base_account] + expanded_accounts
+    if isinstance(account, str):  # Verifica si es una cadena
+        parts = account.split('/')
+        base_account = parts[0]
+        expanded_accounts = [base_account + f".{i.zfill(2)}" for i in parts[1:]]
+        return [base_account] + expanded_accounts
+    else:
+        return [account]  # Devuelve el valor original si no es una cadena
 
 if opcion == "Investor Analysis":
     st.markdown(f"#### Subir datos de Odoo Actual")
@@ -404,6 +410,9 @@ if opcion == "Investor Analysis":
                     df_presupuesto = df_presupuesto.dropna(how='all', axis=1)
                     df_presupuesto = df_presupuesto.loc[:, ~df_presupuesto.columns.str.contains('^Unnamed')]
                     
+                    # Asegúrate de que la columna 'Cuenta' sea de tipo string
+                    df_presupuesto['Cuenta'] = df_presupuesto['Cuenta'].astype(str)
+
                     # Expandir cuentas del presupuesto
                     df_presupuesto['Cuentas Expandidas'] = df_presupuesto['Cuenta'].apply(expand_accounts)
                     df_presupuesto_exploded = df_presupuesto.explode('Cuentas Expandidas')
