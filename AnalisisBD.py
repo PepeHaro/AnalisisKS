@@ -376,6 +376,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                     st.dataframe(comparativa_pivot)
 
     if opcion == "Investor Analysis":
+        st.markdown("hola")
 
     
 
