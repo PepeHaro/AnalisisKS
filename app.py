@@ -383,15 +383,17 @@ if opcion == "Investor Analysis":
         try:
             # Intentar cargar con utf-8
             df_odoo = pd.read_csv(uploaded_odoo, encoding='utf-8')
+            # Renombrar columnas
+            df_odoo.columns = ["Cuenta", "Concepto", "Importe"]
             # Limpieza de datos: mantén solo las columnas relevantes
-            columnas_relevantes = ["Cuenta", "Ganancias netas", "Balance"]
+            columnas_relevantes = ["Cuenta", "Concepto", "Importe"]
             df_odoo = df_odoo[columnas_relevantes].dropna()
             st.write("Datos limpios de Odoo Actual:")
             st.dataframe(df_odoo)
         except UnicodeDecodeError:
             st.error("Error de codificación al cargar el archivo Odoo. Intenta con otro archivo o revisa el formato.")
         except KeyError:
-            st.error("Error: Las columnas 'Cuenta', 'Ganancias netas' o 'Balance' no se encontraron en el archivo.")
+            st.error("Error: Las columnas 'Cuenta', 'Concepto' o 'Importe' no se encontraron en el archivo.")
         except pd.errors.EmptyDataError:
             st.error("Error: El archivo Odoo Actual está vacío.")
         except Exception as e:
@@ -416,7 +418,3 @@ if opcion == "Investor Analysis":
             st.error("Error: El archivo de Presupuesto está vacío.")
         except Exception as e:
             st.error(f"Error inesperado al cargar el archivo de Presupuesto: {e}")
-
-    
-
-        
