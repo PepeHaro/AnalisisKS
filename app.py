@@ -377,14 +377,6 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
 
 
 
-def expand_accounts(account):
-    """Expande cuentas en el formato que contiene '/'."""
-    if isinstance(account, str):
-        parts = account.split('/')
-        base_account = parts[0]
-        expanded_accounts = [base_account + f".{i.zfill(2)}" for i in parts[1:]]
-        return [base_account] + expanded_accounts
-    return [account]
 
 if opcion == "Investor Analysis":
     st.markdown(f"#### Subir datos de Odoo Actual")
@@ -392,11 +384,11 @@ if opcion == "Investor Analysis":
     # Selector de mes
     mes = st.selectbox("Selecciona el mes de Odoo:", ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"])
 
-    uploaded_odoo = st.file_uploader("Subir archivo Odoo Actual (CSV)", type="csv")
+    uploaded_odoo = st.file_uploader("Subir archivo Odoo Actual (Excel)", type=["xlsx", "xls"])
 
     if uploaded_odoo is not None:
         try:
-            df_odoo = pd.read_csv(uploaded_odoo, encoding='utf-8')
+            df_odoo = pd.read_excel(uploaded_odoo)
             df_odoo.columns = ["Cuenta", "Concepto", "Importe"]
             df_odoo = df_odoo.dropna()
 
@@ -404,12 +396,12 @@ if opcion == "Investor Analysis":
             st.dataframe(df_odoo)
 
             st.markdown(f"#### Subir Presupuesto Anual")
-            uploaded_presupuesto = st.file_uploader("Subir archivo de Presupuesto Anual (CSV)", type="csv")
+            uploaded_presupuesto = st.file_uploader("Subir archivo de Presupuesto Anual (Excel)", type=["xlsx", "xls"])
 
             if uploaded_presupuesto is not None:
                 try:
                     # Cargar el archivo de presupuesto
-                    df_presupuesto = pd.read_csv(uploaded_presupuesto, encoding='utf-8')
+                    df_presupuesto = pd.read_excel(uploaded_presupuesto)
 
                     # Eliminar columnas completamente vacías
                     df_presupuesto = df_presupuesto.dropna(how='all', axis=1)
@@ -420,7 +412,7 @@ if opcion == "Investor Analysis":
                     # Verificar que hay al menos 14 columnas después de la limpieza
                     if df_presupuesto.shape[1] >= 14:
                         # Renombrar columnas
-                        column_names = ["Cuenta", "Concepto"] + [f"Mes {i}" for i in range(1, 13)]
+                        column_names = ["Cuenta", "Concepto", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
                         df_presupuesto.columns = column_names[:df_presupuesto.shape[1]]
 
                         st.write("Datos limpios del Presupuesto Anual:")
