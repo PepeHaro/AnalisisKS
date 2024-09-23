@@ -388,8 +388,22 @@ def expand_accounts(account):
     else:
         return [account]  # Devuelve el valor original si no es una cadena
 
+def expand_accounts(account):
+    """Expande cuentas en el formato que contiene '/'."""
+    if isinstance(account, str):  # Verifica si es una cadena
+        parts = account.split('/')
+        base_account = parts[0]
+        expanded_accounts = [base_account + f".{i.zfill(2)}" for i in parts[1:]]
+        return [base_account] + expanded_accounts
+    else:
+        return [account]  # Devuelve el valor original si no es una cadena
+
 if opcion == "Investor Analysis":
     st.markdown(f"#### Subir datos de Odoo Actual")
+    
+    # Selector de mes
+    mes = st.selectbox("Selecciona el mes de Odoo:", ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"])
+
     uploaded_odoo = st.file_uploader("Subir archivo Odoo Actual (CSV)", type="csv")
 
     if uploaded_odoo is not None:
@@ -423,8 +437,8 @@ if opcion == "Investor Analysis":
                     # Calcular variaciones
                     df_comparacion['Variación en Dinero'] = df_comparacion['Importe'] - df_comparacion['Importe_y']  # Ajusta 'Importe_y' según tu archivo
                     df_comparacion['Variación %'] = (df_comparacion['Variación en Dinero'] / df_comparacion['Importe_y']).fillna(0) * 100  # Ajusta 'Importe_y' según tu archivo
-
-                    st.write("Comparación de variaciones:")
+                    
+                    st.write(f"Comparación de variaciones para {mes}:")
                     st.dataframe(df_comparacion[['Cuenta', 'Concepto_x', 'Importe', 'Importe_y', 'Variación en Dinero', 'Variación %']])
                     
                 except pd.errors.EmptyDataError:
