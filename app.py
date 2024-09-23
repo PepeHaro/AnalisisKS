@@ -376,7 +376,40 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                     st.dataframe(comparativa_pivot)
 
 if opcion == "Investor Analysis":
-   uploaded_file = st.file_uploader("Elige un archivo CSV", type="csv")
+    st.markdown(f"#### Subir datos de Odoo Actual")
+    uploaded_odoo = st.file_uploader("Subir archivo Odoo Actual (CSV)", type="csv")
+
+    if uploaded_odoo is not None:
+        try:
+            # Cargar el archivo con encoding utf-8
+            df_odoo = pd.read_csv(uploaded_odoo, encoding='utf-8')
+        except UnicodeDecodeError:
+            # Intentar con otro encoding si ocurre un error
+            df_odoo = pd.read_csv(uploaded_odoo, encoding='latin1')
+
+        # Limpieza de datos: mantén solo las columnas relevantes
+        columnas_relevantes = ["Cuenta", "Ganancias netas", "Balance"]
+        df_odoo = df_odoo[columnas_relevantes]
+
+        # Filtrar filas si es necesario (ejemplo: eliminar filas con datos faltantes)
+        df_odoo = df_odoo.dropna()
+
+        st.write("Datos limpios de Odoo Actual:")
+        st.dataframe(df_odoo)
+
+    st.markdown(f"#### Subir Presupuesto Anual")
+    uploaded_presupuesto = st.file_uploader("Subir archivo de Presupuesto Anual (CSV)", type="csv")
+
+    if uploaded_presupuesto is not None:
+        try:
+            # Cargar el archivo de presupuesto con utf-8
+            df_presupuesto = pd.read_csv(uploaded_presupuesto, encoding='utf-8')
+        except UnicodeDecodeError:
+            # Intentar otro encoding en caso de error
+            df_presupuesto = pd.read_csv(uploaded_presupuesto, encoding='latin1')
+
+        st.write("Datos del Presupuesto Anual:")
+        st.dataframe(df_presupuesto)
 
     
 
