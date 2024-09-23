@@ -376,7 +376,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                     st.dataframe(comparativa_pivot)
 
 if opcion == "Investor Analysis":
-    st.write("hola")
+   uploaded_file = st.file_uploader("Elige un archivo CSV", type="csv")
 
     
 
