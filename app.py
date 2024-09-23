@@ -386,66 +386,46 @@ def expand_accounts(account):
         return [base_account] + expanded_accounts
     return [account]
 
+
 if opcion == "Investor Analysis":
     st.markdown(f"#### Subir datos de Odoo Actual")
 
     # Selector de mes
-    mes = st.selectbox("Selecciona el mes de Odoo:", ["hola", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"])
+    mes = st.selectbox("Selecciona el mes de Odoo:", ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"])
 
+    # Cargar archivo de Odoo (CSV)
     uploaded_odoo = st.file_uploader("Subir archivo Odoo Actual (CSV)", type="csv")
 
     if uploaded_odoo is not None:
         try:
             df_odoo = pd.read_csv(uploaded_odoo, encoding='utf-8')
-            df_odoo.columns = ["Cuenta", "Concepto", "Importe"]
+            df_odoo.columns = ["Cuenta", "Concepto", "Importe"]  # Renombrar columnas
             df_odoo = df_odoo.dropna()
 
             st.write("Datos limpios de Odoo Actual:")
             st.dataframe(df_odoo)
 
             st.markdown(f"#### Subir Presupuesto Anual")
-            uploaded_presupuesto = st.file_uploader("Subir archivo de Presupuesto Anual (CSV)", type="csv")
+            # Cargar archivo de Presupuesto (Excel)
+            uploaded_presupuesto = st.file_uploader("Subir archivo de Presupuesto Anual (Excel)", type=["xlsx", "xls"])
 
             if uploaded_presupuesto is not None:
                 try:
-                    df_presupuesto = pd.read_csv(uploaded_presupuesto, encoding='utf-8')
+                    # Cargar el archivo de presupuesto
+                    df_presupuesto = pd.read_excel(uploaded_presupuesto)
+
+                    # Eliminar columnas completamente vacías
                     df_presupuesto = df_presupuesto.dropna(how='all', axis=1)
-                    df_presupuesto = df_presupuesto.loc[:, ~df_presupuesto.columns.str.contains('^Unnamed')]
 
-                    # Asegúrate de que la columna 'Cuenta' sea de tipo string
-                    df_presupuesto['Cuenta'] = df_presupuesto['Cuenta'].astype(str)
+                    # Eliminar filas completamente vacías
+                    df_presupuesto = df_presupuesto.dropna(how='all', axis=0)
 
-                    # Limpiar espacios y caracteres en las columnas del mes
-                    mes_columna = mes.upper()
-                    df_presupuesto[mes_columna] = df_presupuesto[mes_columna].replace({'-': '0', ',': '', ' ': ''}, regex=True)
+                    # Renombrar columnas
+                    column_names = ["Cuenta", "Concepto", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+                    df_presupuesto.columns = column_names[:df_presupuesto.shape[1]]
 
-                    # Convertir a float
-                    df_presupuesto[mes_columna] = pd.to_numeric(df_presupuesto[mes_columna], errors='coerce')
-
-                    # Verifica si la columna del mes es válida
-                    if df_presupuesto[mes_columna].isnull().all():
-                        st.error(f"Error: La columna para el mes '{mes_columna}' no contiene valores válidos.")
-                    else:
-                        # Expandir cuentas del presupuesto
-                        df_presupuesto['Cuentas Expandidas'] = df_presupuesto['Cuenta'].apply(expand_accounts)
-                        df_presupuesto_exploded = df_presupuesto.explode('Cuentas Expandidas')
-
-                        # Agrupar por las cuentas expandidas y sumar los importes por mes
-                        total_presupuesto = df_presupuesto_exploded.groupby('Cuentas Expandidas')[mes_columna].sum().reset_index()
-                        total_presupuesto.columns = ['Cuenta', 'Importe_Presupuesto']
-
-                        # Realizar la comparación
-                        df_comparacion = df_odoo.merge(total_presupuesto, left_on='Cuenta', right_on='Cuenta', how='inner', suffixes=('', '_y'))
-
-                        # Calcular variaciones
-                        if 'Importe' in df_comparacion.columns and 'Importe_Presupuesto' in df_comparacion.columns:
-                            df_comparacion['Variación en Dinero'] = df_comparacion['Importe'] - df_comparacion['Importe_Presupuesto']
-                            df_comparacion['Variación %'] = (df_comparacion['Variación en Dinero'] / df_comparacion['Importe_Presupuesto']).fillna(0) * 100
-
-                            st.write(f"Comparación de variaciones para {mes}:")
-                            st.dataframe(df_comparacion[['Cuenta', 'Concepto', 'Importe', 'Importe_Presupuesto', 'Variación en Dinero', 'Variación %']])
-                        else:
-                            st.error("Las columnas necesarias para calcular las variaciones no se encontraron.")
+                    st.write("Datos limpios del Presupuesto Anual:")
+                    st.dataframe(df_presupuesto)
 
                 except pd.errors.EmptyDataError:
                     st.error("Error: El archivo de Presupuesto está vacío.")
