@@ -377,18 +377,10 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
 
 
 
-def expand_accounts(account):
-    """Expande cuentas en el formato que contiene '/'."""
-    if isinstance(account, str):
-        parts = account.split('/')
-        base_account = parts[0]
-        expanded_accounts = [base_account + f".{i.zfill(2)}" for i in parts[1:]]
-        return [base_account] + expanded_accounts
-    return [account]
 
 
 if opcion == "Investor Analysis":
-    st.markdown(f"#### Subir datos de Odoo Actual")
+    st.markdown("#### Subir datos de Odoo Actual")
 
     # Selector de mes
     mes = st.selectbox("Selecciona el mes de Odoo:", ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"])
@@ -399,34 +391,32 @@ if opcion == "Investor Analysis":
     if uploaded_odoo is not None:
         try:
             df_odoo = pd.read_csv(uploaded_odoo, encoding='utf-8')
-            df_odoo.columns = ["Cuenta", "Concepto", "Importe"]  # Renombrar columnas
+            df_odoo.columns = ["Cuenta", "Concepto", "Importe"]
             df_odoo = df_odoo.dropna()
 
             st.write("Datos limpios de Odoo Actual:")
             st.dataframe(df_odoo)
 
-        except UnicodeDecodeError:
-            st.error("Error de codificación al cargar el archivo Odoo. Intenta con otro archivo o revisa el formato.")
-        except KeyError:
-            st.error("Error: Las columnas 'Cuenta', 'Concepto' o 'Importe' no se encontraron en el archivo.")
-        except pd.errors.EmptyDataError:
-            st.error("Error: El archivo Odoo Actual está vacío.")
         except Exception as e:
             st.error(f"Error inesperado al cargar el archivo Odoo: {e}")
 
-    st.markdown(f"#### Subir Presupuesto Anual")
-    
-    # Cargar archivo de Presupuesto (Excel)
-    uploaded_presupuesto = st.file_uploader("Subir archivo de Presupuesto Anual (Excel)", type=["xlsx", "xls"])
+    st.markdown("#### Subir Presupuesto Anual")
+
+    # Selección de tipo de archivo
+    file_type = st.radio("Selecciona el tipo de archivo para el Presupuesto:", ["Excel (XLSX)", "Excel (XLS)"])
+
+    # Cargar archivo de Presupuesto (según el tipo seleccionado)
+    if file_type == "Excel (XLSX)":
+        uploaded_presupuesto = st.file_uploader("Subir archivo de Presupuesto Anual (Excel XLSX)", type="xlsx")
+    else:
+        uploaded_presupuesto = st.file_uploader("Subir archivo de Presupuesto Anual (Excel XLS)", type="xls")
 
     if uploaded_presupuesto is not None:
         try:
-            # Cargar el archivo de presupuesto
             df_presupuesto = pd.read_excel(uploaded_presupuesto)
 
             # Eliminar columnas completamente vacías
             df_presupuesto = df_presupuesto.dropna(how='all', axis=1)
-
             # Eliminar filas completamente vacías
             df_presupuesto = df_presupuesto.dropna(how='all', axis=0)
 
@@ -437,7 +427,5 @@ if opcion == "Investor Analysis":
             st.write("Datos limpios del Presupuesto Anual:")
             st.dataframe(df_presupuesto)
 
-        except pd.errors.EmptyDataError:
-            st.error("Error: El archivo de Presupuesto está vacío.")
         except Exception as e:
             st.error(f"Error inesperado al cargar el archivo de Presupuesto: {e}")
