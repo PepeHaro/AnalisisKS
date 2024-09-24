@@ -9,7 +9,7 @@ import sqlite3
 
 
 # Título de la aplicación
-st.title("ANÁLISIS MANUFACTURA KONCEPT")
+st.title("ANÁLISIS MANUFACTURA KONCEPTx")
 
 # Barra lateral para la selección de pestañas
 st.sidebar.title("Navegación")
