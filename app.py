@@ -414,8 +414,8 @@ if opcion == "Investor Analysis":
 
     if uploaded_presupuesto is not None:
         try:
-            # Cargar el archivo de presupuesto
-            df_presupuesto = pd.read_excel(uploaded_presupuesto)
+            # Cargar el archivo de presupuesto usando el motor 'openpyxl' para archivos Excel
+            df_presupuesto = pd.read_excel(uploaded_presupuesto, engine='openpyxl')
 
             # Eliminar columnas completamente vacías
             df_presupuesto = df_presupuesto.dropna(how='all', axis=1)
