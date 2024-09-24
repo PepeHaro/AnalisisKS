@@ -9,7 +9,7 @@ import sqlite3
 
 
 # Título de la aplicación
-st.title("ANÁLISIS MANUFACTURA KONCEPTx")
+st.title("ANÁLISIS MANUFACTURA KONCEPT")
 
 # Barra lateral para la selección de pestañas
 st.sidebar.title("Navegación")
@@ -55,7 +55,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
         df['Cliete'] = df['Cliete'].map(cliente_mapeo).fillna(df['Cliete'])
 
         # Asegurarse de que las columnas Año y Mes sean de tipo string
-        df["Año"] = df["Año"].astype(str)
+        df["Año"] = df["Año"].astype(int).astype(str)
         df["Mes"] = df["Mes"].astype(str)
 
         # Asegurarse de que la columna Importe sea numérica
