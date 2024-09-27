@@ -376,6 +376,9 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                     st.dataframe(comparativa_pivot)
 
     st.markdown("## PRECIO UNITARIO POR CLIENTE")
+    # Selección de cliente para comparativa por año
+    cliente_comparativa = st.selectbox("Selecciona un cliente para la comparativa por año", clientes_unicos, key="cliente_comparativa")
+    
 
 
 
