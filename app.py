@@ -244,7 +244,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
 
 
     elif opcion == "SKU's Analysis":
-        st.markdown("## PRODUCTOS VENDIDOS")
+        st.markdown("## PRODUCTOS VENDIDOS :gear:")
         # Agregar opción "Todos los clientes" al selectbox de cliente
         clientes_unicos = list(df["Cliete"].unique())
         clientes_unicos.insert(0, "Todos los clientes")
@@ -321,7 +321,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             st.dataframe(ventas_producto[['SKU', 'Producto', 'Cantidad', 'Importe_formateado', 'Porcentaje_formateado']])
 
             # Comparativa por año
-            st.write("## COMPARATIVA POR AÑO")
+            st.write("## COMPARATIVA POR AÑO	:clipboard:")
 
             # Selección de cliente para comparativa por año
             cliente_comparativa = st.selectbox("Selecciona un cliente para la comparativa por año", clientes_unicos, key="cliente_comparativa")
@@ -376,7 +376,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                     st.write("### Tabla Comparativa de Ventas por Año")
                     st.dataframe(comparativa_pivot)
 
-    st.markdown("## PRECIO UNITARIO POR CLIENTE")
+    st.markdown("## PRECIO UNITARIO POR CLIENTE	:heavy_dollar_sign:")
 
     # Selección de cliente para comparativa por año
     cliente_precio_unitario = st.selectbox("Selecciona un cliente para el análisis del precio unitario", clientes_unicos)
