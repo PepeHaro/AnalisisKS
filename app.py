@@ -139,6 +139,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
         # Mostrar gráfico
         st.altair_chart(bars + text, use_container_width=True)
 
+        st.write("---")
         # Selección de años para comparación
         st.subheader("COMPARATIVA DE VENTAS ENTRE AÑOS:signal_strength:")
         cliente_comparativa = st.selectbox("Selecciona el cliente para la comparativa", df["Cliete"].unique())
