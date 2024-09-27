@@ -106,6 +106,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
         # Mostrar gráfico
         st.altair_chart(line_chart + line_points + line_text, use_container_width=True)
 
+        st.write("---")
         # Selección de cliente
         st.subheader("FLUCTUACIONES DE VENTAS POR CLIENTE:bar_chart:")
         cliente_seleccionado = st.selectbox("Selecciona un cliente", df["Cliete"].unique())
@@ -319,7 +320,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             # Mostrar tabla con SKU, Cantidad, Importe y Porcentaje
             st.write(f"### Detalle de Productos Vendidos - Suma de Ventas: {suma_ventas_top_formateado} ({porcentaje_ventas_top_formateado})")
             st.dataframe(ventas_producto[['SKU', 'Producto', 'Cantidad', 'Importe_formateado', 'Porcentaje_formateado']])
-            
+
             st.write("---")
             # Comparativa por año
             st.write("## COMPARATIVA POR AÑO	:clipboard:")
