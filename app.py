@@ -76,7 +76,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
         ultimo_año = df["Año"].max()
         ultimo_mes = df[df["Año"] == ultimo_año]["Mes"].max()
 
-st.write("---")
+    st.write("---")
     if opcion == "Sales Analysis":
         # Gráfico de líneas de ventas totales por año
         st.subheader(f"VENTAS TOTALES POR AÑO:chart_with_upwards_trend:")
