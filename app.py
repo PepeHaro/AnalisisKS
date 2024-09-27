@@ -320,7 +320,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             st.dataframe(ventas_producto[['SKU', 'Producto', 'Cantidad', 'Importe_formateado', 'Porcentaje_formateado']])
 
             # Comparativa por año
-            st.write("## Comparativa por año")
+            st.write("## COMPARATIVA POR AÑO")
 
             # Selección de cliente para comparativa por año
             cliente_comparativa = st.selectbox("Selecciona un cliente para la comparativa por año", clientes_unicos, key="cliente_comparativa")
