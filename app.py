@@ -376,9 +376,30 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                     st.dataframe(comparativa_pivot)
 
     st.markdown("## PRECIO UNITARIO POR CLIENTE")
+
     # Selección de cliente para comparativa por año
-    cliente_comparativa = st.selectbox("Selecciona un cliente para la comparativa por año", clientes_unicos, key="cliente_comparativa")
-    
+    cliente_precio_unitario = st.selectbox("Selecciona un cliente para el análisis del precio unitario", clientes_unicos, key="cliente_precio_unitario")
+
+    if cliente_precio_unitario:
+        if cliente_precio_unitario == "Todos los clientes":
+            # Filtrar datos para todos los clientes
+            df_precio_unitario = df
+        else:
+            # Filtrar datos por el cliente seleccionado
+            df_precio_unitario = df[df["Cliete"] == cliente_precio_unitario]
+
+        # Agrupar por producto y calcular el precio unitario
+        precio_unitario = df_precio_unitario.groupby(["SKU", "Producto"], as_index=False).agg(
+            {
+                "PrecioU": "mean",  # Puedes cambiar a "sum" si deseas sumar los precios
+                "Cantidad": "sum"
+            }
+        )
+        precio_unitario["PrecioU_formateado"] = precio_unitario["PrecioU"].apply(lambda x: "{:,.2f}".format(x))
+
+        # Mostrar el DataFrame con el precio unitario
+        st.write(f"### Precio Unitario por Producto para {cliente_precio_unitario}")
+        st.dataframe(precio_unitario[['SKU', 'Producto', 'Cantidad', 'PrecioU_formateado']])
 
 
 
