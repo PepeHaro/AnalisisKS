@@ -410,7 +410,7 @@ if opcion == "Investor Analysis":
     st.markdown(f"#### Subir Presupuesto Anual")
     
     # Cargar archivo de Presupuesto (Excel)
-    uploaded_presupuesto = st.file_uploader("xSubir archivo de Presupuesto Anual (Excel)", type=["xlsx", "xls"])
+    uploaded_presupuesto = st.file_uploader("Subir archivo de Presupuesto Anual (Excel)", type=["xlsx", "xls"])
 
     if uploaded_presupuesto is not None:
         try:
