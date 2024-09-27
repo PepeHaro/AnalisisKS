@@ -244,6 +244,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
 
 
     elif opcion == "SKU's Analysis":
+        st.markdown("## PRODUCTOS VENDIDOS")
         # Agregar opción "Todos los clientes" al selectbox de cliente
         clientes_unicos = list(df["Cliete"].unique())
         clientes_unicos.insert(0, "Todos los clientes")
