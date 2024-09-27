@@ -187,6 +187,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             # Mostrar gráficos comparativos
             st.altair_chart(comparativa_barras + comparativa_text, use_container_width=True)
 
+        st.write("---")
         # Selección de año para ventas por mes
         st.subheader("VENTAS POR MES EN UN AÑO:calendar:")
         año_seleccionado = st.selectbox("Selecciona el año para comparar", df["Año"].unique())
