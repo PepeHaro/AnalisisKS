@@ -378,25 +378,36 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
     st.markdown("## PRECIO UNITARIO POR CLIENTE")
 
     # Selección de cliente para comparativa por año
+    clientes_unicos = df["Cliete"].unique()  # Asegúrate de obtener solo clientes únicos
+
     cliente_precio_unitario = st.selectbox("Selecciona un cliente para el análisis del precio unitario", clientes_unicos)
 
     if cliente_precio_unitario:
         # Filtrar datos por el cliente seleccionado
         df_precio_unitario = df[df["Cliete"] == cliente_precio_unitario]
 
-        # Agrupar por SKU y Año, calculando el precio unitario promedio
-        precio_unitario = df_precio_unitario.groupby(["SKU", "Año"], as_index=False).agg({"PrecioU": "mean"})
+        # Agrupar por producto y calcular el precio unitario
+        precio_unitario = df_precio_unitario.groupby(["SKU", "Producto"], as_index=False).agg(
+            {
+                "PrecioU": "mean",  # Puedes cambiar a "sum" si deseas sumar los precios
+                "Cantidad": "sum"
+            }
+        )
 
-        # Pivotar el DataFrame para tener los años como columnas
-        precio_unitario_pivot = precio_unitario.pivot(index='SKU', columns='Año', values='PrecioU')
+        # Formatear el precio unitario
+        precio_unitario["PrecioU_formateado"] = precio_unitario["PrecioU"].apply(lambda x: "{:,.2f}".format(x))
 
-        # Formatear los valores para que se muestren con el formato deseado
-        precio_unitario_pivot = precio_unitario_pivot.fillna(0).applymap(lambda x: "${:,.2f}".format(x) if x > 0 else "$0.00")
+        # Búsqueda de SKU
+        sku_busqueda = st.text_input("Buscar SKU:", "")
+        if sku_busqueda:
+            precio_unitario = precio_unitario[precio_unitario["SKU"].str.contains(sku_busqueda, case=False, na=False)]
+
+        # Reestructurar el DataFrame para mostrar en el formato deseado
+        precio_unitario_pivot = precio_unitario.pivot(index="SKU", columns="Producto", values="PrecioU_formateado").reset_index()
 
         # Mostrar el DataFrame con el precio unitario
-        st.write(f"### Precio Unitario por SKU para {cliente_precio_unitario}")
-        st.dataframe(precio_unitario_pivot.reset_index())
-
+        st.write(f"### Precio Unitario por Producto para {cliente_precio_unitario}")
+        st.dataframe(precio_unitario_pivot)
 
 
 
