@@ -385,38 +385,38 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
     # Selección de cliente para comparativa por año
     cliente_precio_unitario = st.selectbox("Selecciona un cliente para el análisis del precio unitario", clientes_unicos)
 
-    if cliente_precio_unitario:
-        # Filtrar datos por el cliente seleccionado
-        df_precio_unitario = df[df["Cliete"] == cliente_precio_unitario]
+        if cliente_precio_unitario:
+            # Filtrar datos por el cliente seleccionado
+            df_precio_unitario = df[df["Cliete"] == cliente_precio_unitario]
 
-        # Agrupar por SKU y Año, calculando el precio unitario promedio
-        precio_unitario = df_precio_unitario.groupby(["SKU", "Año"], as_index=False).agg({"PrecioU": "mean"})
+            # Agrupar por SKU y Año, calculando el precio unitario promedio
+            precio_unitario = df_precio_unitario.groupby(["SKU", "Año"], as_index=False).agg({"PrecioU": "mean"})
 
-        # Pivotar el DataFrame para tener los años como columnas
-        precio_unitario_pivot = precio_unitario.pivot(index='SKU', columns='Año', values='PrecioU')
+            # Pivotar el DataFrame para tener los años como columnas
+            precio_unitario_pivot = precio_unitario.pivot(index='SKU', columns='Año', values='PrecioU')
 
-        # Formatear los valores para que se muestren con el formato deseado
-        precio_unitario_pivot = precio_unitario_pivot.fillna(0).applymap(lambda x: "${:,.2f}".format(x) if x > 0 else "$0.00")
+            # Formatear los valores para que se muestren con el formato deseado
+            precio_unitario_pivot = precio_unitario_pivot.fillna(0).applymap(lambda x: "${:,.2f}".format(x) if x > 0 else "$0.00")
 
-        # Mostrar el DataFrame con el precio unitario
-        st.write(f"### Precio Unitario por SKU para {cliente_precio_unitario}")
-        st.dataframe(precio_unitario_pivot.reset_index())
+            # Mostrar el DataFrame con el precio unitario
+            st.write(f"### Precio Unitario por SKU para {cliente_precio_unitario}")
+            st.dataframe(precio_unitario_pivot.reset_index())
 
-        # Obtener los SKU únicos para el multiselect
-        skus_unicos = precio_unitario['SKU'].unique().tolist()
+            # Obtener los SKU únicos para el multiselect
+            skus_unicos = precio_unitario['SKU'].unique().tolist()
 
-        # Selección de SKU para ver precios específicos
-        skus_seleccionados = st.multiselect("Selecciona uno o más SKU", options=skus_unicos)
+            # Selección de SKU para ver precios específicos
+            skus_seleccionados = st.multiselect("Selecciona uno o más SKU", options=skus_unicos)
 
-        if skus_seleccionados:
-            # Filtrar el DataFrame por los SKU seleccionados
-            precios_filtrados = precio_unitario_pivot[precio_unitario_pivot.index.isin(skus_seleccionados)]
-            
-            # Asegurarse de que no se produzca un error por los índices
-            precios_filtrados = precios_filtrados.reset_index()
-            
-            st.write(f"### Precios de los SKU seleccionados para {cliente_precio_unitario}")
-            st.dataframe(precios_filtrados)
+            if skus_seleccionados:
+                # Filtrar el DataFrame por los SKU seleccionados
+                precios_filtrados = precio_unitario_pivot[precio_unitario_pivot.index.isin(skus_seleccionados)]
+                
+                # Asegurarse de que no se produzca un error por los índices
+                precios_filtrados = precios_filtrados.reset_index()
+                
+                st.write(f"### Precios de los SKU seleccionados para {cliente_precio_unitario}")
+                st.dataframe(precios_filtrados)
 
 
 
