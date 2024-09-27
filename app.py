@@ -375,7 +375,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                     st.write("### Tabla Comparativa de Ventas por Año")
                     st.dataframe(comparativa_pivot)
 
-
+    st.markdown("## PRECIO UNITARIO POR CLIENTE")
 
 
 
