@@ -397,17 +397,14 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
         st.write(f"### Precio Unitario por SKU para {cliente_precio_unitario}")
         st.dataframe(precio_unitario_pivot.reset_index())
 
-        # Selección múltiple de SKUs
-        skus_disponibles = precio_unitario_pivot.index.tolist()  # Obtener SKUs desde el índice
-        skus_seleccionados = st.multiselect("Selecciona los SKUs específicos", skus_disponibles)
+        # Selección de SKU para ver precios específicos
+        skus_seleccionados = st.multiselect("Selecciona uno o más SKU", options=precio_unitario["SKU"].unique())
 
         if skus_seleccionados:
-            # Filtrar el DataFrame por los SKUs seleccionados
-            precio_unitario_busqueda = precio_unitario_pivot.loc[skus_seleccionados]
-
-            # Mostrar el DataFrame filtrado por SKUs
-            st.write(f"### Resultados para SKUs seleccionados: {', '.join(skus_seleccionados)}")
-            st.dataframe(precio_unitario_busqueda.reset_index())
+            # Filtrar el DataFrame por los SKU seleccionados
+            precios_filtrados = precio_unitario_pivot.loc[precio_unitario_pivot['SKU'].isin(skus_seleccionados)]
+            st.write(f"### Precios de los SKU seleccionados para {cliente_precio_unitario}")
+            st.dataframe(precios_filtrados.reset_index(drop=True))
 
 
 
