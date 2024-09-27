@@ -379,11 +379,11 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                     # Mostrar tabla comparativa
                     st.write("### Tabla Comparativa de Ventas por Año")
                     st.dataframe(comparativa_pivot)
-    st.write("---")
-    st.markdown("## PRECIO UNITARIO POR CLIENTE	:heavy_dollar_sign:")
+        st.write("---")
+        st.markdown("## PRECIO UNITARIO POR CLIENTE	:heavy_dollar_sign:")
 
-    # Selección de cliente para comparativa por año
-    cliente_precio_unitario = st.selectbox("Selecciona un cliente para el análisis del precio unitario", clientes_unicos)
+        # Selección de cliente para comparativa por año
+        cliente_precio_unitario = st.selectbox("Selecciona un cliente para el análisis del precio unitario", clientes_unicos)
 
         if cliente_precio_unitario:
             # Filtrar datos por el cliente seleccionado
