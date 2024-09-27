@@ -22,7 +22,7 @@ opcion = st.sidebar.selectbox(
 if opcion in ["Sales Analysis", "SKU's Analysis"]:
     st.markdown(f"#### Subir archivo CSV para {opcion}")
     uploaded_file = st.file_uploader("Elige un archivo CSV", type="csv")
-
+    
     # Procesar el archivo si se ha subido
     if uploaded_file is not None:
         try:
@@ -76,7 +76,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
         ultimo_año = df["Año"].max()
         ultimo_mes = df[df["Año"] == ultimo_año]["Mes"].max()
 
-
+st.write("---")
     if opcion == "Sales Analysis":
         # Gráfico de líneas de ventas totales por año
         st.subheader(f"VENTAS TOTALES POR AÑO:chart_with_upwards_trend:")
