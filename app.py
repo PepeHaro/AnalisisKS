@@ -402,12 +402,9 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
         if sku_busqueda:
             precio_unitario = precio_unitario[precio_unitario["SKU"].str.contains(sku_busqueda, case=False, na=False)]
 
-        # Reestructurar el DataFrame para mostrar en el formato deseado
-        precio_unitario_pivot = precio_unitario.pivot(index="SKU", columns="Producto", values="PrecioU_formateado").reset_index()
-
         # Mostrar el DataFrame con el precio unitario
         st.write(f"### Precio Unitario por Producto para {cliente_precio_unitario}")
-        st.dataframe(precio_unitario_pivot)
+        st.dataframe(precio_unitario[['SKU', 'Producto', 'Cantidad', 'PrecioU_formateado']])
 
 
 
