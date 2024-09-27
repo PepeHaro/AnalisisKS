@@ -377,37 +377,29 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
 
     st.markdown("## PRECIO UNITARIO POR CLIENTE")
 
-# Interfaz para seleccionar cliente
-cliente_precio_unitario = st.selectbox("Selecciona un cliente:", ["Todos los clientes"] + df["Cliete"].unique().tolist())
+    # Selección de cliente para comparativa por año
+    cliente_precio_unitario = st.selectbox("Selecciona un cliente para el análisis del precio unitario", clientes_unicos, key="cliente_precio_unitario")
 
-    try:
-        # Asegurarse de que las columnas son numéricas
-        df["PrecioU"] = pd.to_numeric(df["PrecioU"], errors='coerce')
-        df["Cantidad"] = pd.to_numeric(df["Cantidad"], errors='coerce')
-        
-        # Filtrar datos
+    if cliente_precio_unitario:
         if cliente_precio_unitario == "Todos los clientes":
+            # Filtrar datos para todos los clientes
             df_precio_unitario = df
         else:
+            # Filtrar datos por el cliente seleccionado
             df_precio_unitario = df[df["Cliete"] == cliente_precio_unitario]
 
-        # Comprobar si el DataFrame está vacío
-        if df_precio_unitario.empty:
-            st.error("No hay datos para el cliente seleccionado.")
-        else:
-            # Agrupar por SKU y Producto
-            precio_unitario = df_precio_unitario.groupby(["SKU", "Producto"], as_index=False).agg(
-                {"PrecioU": "mean", "Cantidad": "sum"}
-            )
-            
-            # Formatear el precio unitario
-            precio_unitario["PrecioU_formateado"] = precio_unitario["PrecioU"].apply(lambda x: "{:,.2f}".format(x))
+        # Agrupar por producto y calcular el precio unitario
+        precio_unitario = df_precio_unitario.groupby(["SKU", "Producto"], as_index=False).agg(
+            {
+                "PrecioU": "mean",  # Puedes cambiar a "sum" si deseas sumar los precios
+                "Cantidad": "sum"
+            }
+        )
+        precio_unitario["PrecioU_formateado"] = precio_unitario["PrecioU"].apply(lambda x: "{:,.2f}".format(x))
 
-            # Mostrar el resultado
-            st.write(f"### Precio Unitario por Producto para {cliente_precio_unitario}")
-            st.dataframe(precio_unitario[['SKU', 'Producto', 'Cantidad', 'PrecioU_formateado']])
-    except Exception as e:
-        st.error(f"Ha ocurrido un error: {e}")
+        # Mostrar el DataFrame con el precio unitario
+        st.write(f"### Precio Unitario por Producto para {cliente_precio_unitario}")
+        st.dataframe(precio_unitario[['SKU', 'Producto', 'Cantidad', 'PrecioU_formateado']])
 
 
 
