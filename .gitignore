@@ -1,0 +1,29 @@
+# Ignora archivos secretos y de configuración sensibles
+.secrets.toml
+
+# Ignora archivos temporales y de entorno de desarrollo
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.env
+*.venv
+env/
+venv/
+ENV/
+
+# Ignora archivos específicos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Ignora archivos de logs
+*.log
+
+# Ignora configuraciones de IDEs y editores
+.vscode/
+.idea/
+*.sublime-workspace
+
+# Ignora archivos de configuración de entorno virtual
+Pipfile
+Pipfile.lock
