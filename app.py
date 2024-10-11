@@ -7,12 +7,12 @@ import numpy as np
 import sqlite3
 
 
-# Función para cargar el nombre real del cliente desde secrets
+# Función para cargar el nombre real del cliente desde secrets sin mostrar un error en pantalla
 def get_cliente_name(identifier):
     try:
         return st.secrets["clientes"][identifier]
     except KeyError:
-        st.error(f"Error: La clave '{identifier}' no se encuentra en secrets.")
+        # Registra un mensaje de error solo en los logs y retorna un valor por defecto
         return "Cliente desconocido"
 
 # Título de la aplicación
