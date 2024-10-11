@@ -7,9 +7,12 @@ import numpy as np
 import sqlite3
 
 
+# Función para cargar el nombre real del cliente desde secrets
+def get_cliente_name(identifier):
+    return st.secrets["clientes"].get(identifier, "Cliente desconocido")
 
 # Título de la aplicación
-st.title("ANÁLISIS MANUFACTURA KONCEPT")
+st.title("ANÁLISIS MK")
 
 # Barra lateral para la selección de pestañas
 st.sidebar.title("Navegación")
@@ -35,24 +38,24 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
         # Manejo de datos faltantes
         df.fillna(0, inplace=True)  # Rellena los valores nulos con 0
 
-        # Normalización de nombres de clientes
+        # Normalización de nombres de clientes usando identificadores y secrets
         cliente_mapeo = {
-            'Interceramic': 'Interceramic',
-            'Home Depot': 'Home Depot',
-            'Daltile': 'Daltile',
-            'Kolher': 'Kolher',
-            'Cesantoni': 'Cesantoni',
-            'USA': 'USA',
-            'Lamosa': 'Lamosa',
-            'Vitromex': 'Vitromex',
-            'Varios': 'Varios',
-            'Tenerife': 'Tenerife',
-            'Tendenzza': 'Tendenzza'
+            'C1': get_cliente_name('C1'),
+            'C2': get_cliente_name('C2'),
+            'C3': get_cliente_name('C3'),
+            'C4': get_cliente_name('C4'),
+            'C5': get_cliente_name('C5'),
+            'C6': get_cliente_name('C6'),
+            'C7': get_cliente_name('C7'),
+            'C8': get_cliente_name('C8'),
+            'C9': get_cliente_name('C9'),
+            'C10': get_cliente_name('C10'),
+            'C11': get_cliente_name('C11')
         }
 
         # Convertir nombres de clientes a formato estándar
-        df['Cliete'] = df['Cliete'].str.strip().str.title()
-        df['Cliete'] = df['Cliete'].map(cliente_mapeo).fillna(df['Cliete'])
+        df['Cliente'] = df['Cliente'].str.strip().str.title()
+        df['Cliente'] = df['Cliente'].map(cliente_mapeo).fillna(df['Cliente'])
 
         # Asegurarse de que las columnas Año y Mes sean de tipo string
         df["Año"] = df["Año"].astype(int).astype(str)
@@ -109,10 +112,10 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
         st.write("---")
         # Selección de cliente
         st.subheader("FLUCTUACIONES DE VENTAS POR CLIENTE:bar_chart:")
-        cliente_seleccionado = st.selectbox("Selecciona un cliente", df["Cliete"].unique())
+        cliente_seleccionado = st.selectbox("Selecciona un cliente", df["Cliente"].unique())
 
         # Filtrar datos por cliente seleccionado
-        df_cliente = df[df["Cliete"] == cliente_seleccionado]
+        df_cliente = df[df["Cliente"] == cliente_seleccionado]
 
         # Agrupar las ventas por año utilizando la columna Importe
         ventas_cliente = df_cliente.groupby("Año", as_index=False)["Importe"].sum()
@@ -142,18 +145,18 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
         st.write("---")
         # Selección de años para comparación
         st.subheader("COMPARATIVA DE VENTAS ENTRE AÑOS:signal_strength:")
-        cliente_comparativa = st.selectbox("Selecciona el cliente para la comparativa", df["Cliete"].unique())
+        cliente_comparativa = st.selectbox("Selecciona el cliente para la comparativa", df["Cliente"].unique())
         años_disponibles = df["Año"].unique()
         año_seleccionado_1 = st.selectbox("Selecciona el primer año", años_disponibles)
         año_seleccionado_2 = st.selectbox("Selecciona el segundo año", años_disponibles)
 
         if año_seleccionado_1 and año_seleccionado_2:
             # Filtrar datos por cliente seleccionado para comparación
-            df_comparativa_cliente = df[df["Cliete"] == cliente_comparativa]
+            df_comparativa_cliente = df[df["Cliente"] == cliente_comparativa]
 
             # Filtrar datos por años seleccionados
-            df_año_1 = df_comparativa_cliente[df_comparativa_cliente["Año"] == año_seleccionado_1].groupby("Cliete")["Importe"].sum().reset_index()
-            df_año_2 = df_comparativa_cliente[df_comparativa_cliente["Año"] == año_seleccionado_2].groupby("Cliete")["Importe"].sum().reset_index()
+            df_año_1 = df_comparativa_cliente[df_comparativa_cliente["Año"] == año_seleccionado_1].groupby("Cliente")["Importe"].sum().reset_index()
+            df_año_2 = df_comparativa_cliente[df_comparativa_cliente["Año"] == año_seleccionado_2].groupby("Cliente")["Importe"].sum().reset_index()
 
             # Crear un DataFrame para la comparación
             df_comparativa = pd.DataFrame({
@@ -249,7 +252,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
     elif opcion == "SKU's Analysis":
         st.markdown("## PRODUCTOS VENDIDOS :gear:")
         # Agregar opción "Todos los clientes" al selectbox de cliente
-        clientes_unicos = list(df["Cliete"].unique())
+        clientes_unicos = list(df["Cliente"].unique())
         clientes_unicos.insert(0, "Todos los clientes")
 
         # Selección de cliente para análisis de productos
@@ -267,7 +270,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 df_producto = df[df["Año"] == año_seleccionado_producto]
             else:
                 # Filtrar datos por cliente y año seleccionados
-                df_producto = df[(df["Cliete"] == cliente_seleccionado_producto) & (df["Año"] == año_seleccionado_producto)]
+                df_producto = df[(df["Cliente"] == cliente_seleccionado_producto) & (df["Año"] == año_seleccionado_producto)]
 
             # Asegurarse de que la columna "Cantidad" sea numérica
             df_producto["Cantidad"] = pd.to_numeric(df_producto["Cantidad"], errors='coerce')
@@ -345,7 +348,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                     df_comparativa = df[(df["Año"].isin(años_comparativa)) & (df["SKU"].isin(skus_seleccionados))]
                 else:
                     # Filtrar datos por cliente, años seleccionados y SKUs especificados
-                    df_comparativa = df[(df["Cliete"] == cliente_comparativa) & (df["Año"].isin(años_comparativa)) & (df["SKU"].isin(skus_seleccionados))]
+                    df_comparativa = df[(df["Cliente"] == cliente_comparativa) & (df["Año"].isin(años_comparativa)) & (df["SKU"].isin(skus_seleccionados))]
 
                 # Agrupar ventas por año y SKU, sumando importe correctamente
                 ventas_comparativa = df_comparativa.groupby(["Año", "SKU"], as_index=False).agg(
@@ -387,7 +390,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
 
         if cliente_precio_unitario:
             # Filtrar datos por el cliente seleccionado
-            df_precio_unitario = df[df["Cliete"] == cliente_precio_unitario]
+            df_precio_unitario = df[df["Cliente"] == cliente_precio_unitario]
 
             # Agrupar por SKU y Año, calculando el precio unitario promedio
             precio_unitario = df_precio_unitario.groupby(["SKU", "Año"], as_index=False).agg({"PrecioU": "mean"})
