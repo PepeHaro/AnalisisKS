@@ -9,7 +9,11 @@ import sqlite3
 
 # Función para cargar el nombre real del cliente desde secrets
 def get_cliente_name(identifier):
-    return st.secrets["clientes"].get(identifier, "Cliente desconocido")
+    try:
+        return st.secrets["clientes"][identifier]
+    except KeyError:
+        st.error(f"Error: La clave '{identifier}' no se encuentra en secrets.")
+        return "Cliente desconocido"
 
 # Título de la aplicación
 st.title("ANÁLISIS MK")
@@ -38,23 +42,11 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
         # Manejo de datos faltantes
         df.fillna(0, inplace=True)  # Rellena los valores nulos con 0
 
-        # Normalización de nombres de clientes usando identificadores y secrets
-        cliente_mapeo = {
-            'C1': get_cliente_name('C1'),
-            'C2': get_cliente_name('C2'),
-            'C3': get_cliente_name('C3'),
-            'C4': get_cliente_name('C4'),
-            'C5': get_cliente_name('C5'),
-            'C6': get_cliente_name('C6'),
-            'C7': get_cliente_name('C7'),
-            'C8': get_cliente_name('C8'),
-            'C9': get_cliente_name('C9'),
-            'C10': get_cliente_name('C10'),
-            'C11': get_cliente_name('C11')
-        }
+        # Generar el mapeo dinámicamente desde secrets
+        cliente_mapeo = {f'C{i+1}': get_cliente_name(f'C{i+1}') for i in range(11)}
 
-        # Convertir nombres de clientes a formato estándar
-        df['Cliente'] = df['Cliente'].str.strip().str.title()
+        # Convertir nombres de clientes en el DataFrame a formato estándar
+        df['Cliente'] = df['Cliente'].str.strip().str.title()  # Normaliza espacios y mayúsculas
         df['Cliente'] = df['Cliente'].map(cliente_mapeo).fillna(df['Cliente'])
 
         # Asegurarse de que las columnas Año y Mes sean de tipo string
