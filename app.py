@@ -50,7 +50,8 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
         df['Cliente'] = df['Cliente'].map(cliente_mapeo).fillna(df['Cliente'])
 
         # Asegurarse de que las columnas Año y Mes sean de tipo string
-        df["Año"] = df["Año"].astype(int).astype(str)
+        # Convertir la columna "Año" a numérico, ignorando errores y manejando valores nulos
+        df["Año"] = pd.to_numeric(df["Año"], errors='coerce').fillna(0).astype(int).astype(str)
         df["Mes"] = df["Mes"].astype(str)
 
         # Asegurarse de que la columna Importe sea numérica
