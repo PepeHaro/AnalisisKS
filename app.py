@@ -185,61 +185,69 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
 
         st.write("---")
         # Selección de año para ventas por mes
-        st.subheader("VENTAS POR MES EN UN AÑO:calendar:")
-        año_seleccionado = st.selectbox("Selecciona el año para comparar", df["Año"].unique())
+        st.subheader("VENTAS POR MES:calendar:")
+
+        # Añadir la opción "Todos los años" al selectbox
+        años_disponibles = ["Todos los años"] + list(df["Año"].unique())
+        año_seleccionado = st.selectbox("Selecciona el año para comparar", años_disponibles)
 
         if año_seleccionado:
-            # Filtrar datos por el año seleccionado
-            df_mes = df[df["Año"] == año_seleccionado]
+            if año_seleccionado == "Todos los años":
+                # Filtrar todas las filas, sin excluir años
+                df_mes = df.copy()
+            else:
+                # Filtrar datos por el año seleccionado
+                df_mes = df[df["Año"] == año_seleccionado]
 
             # Asegurarse de que la columna Mes esté en formato numérico
             df_mes["Mes"] = pd.to_numeric(df_mes["Mes"], errors='coerce')
 
-            # Agrupar ventas por mes
-            ventas_mes = df_mes.groupby("Mes", as_index=False)["Importe"].sum()
+            # Agrupar ventas por mes y año
+            ventas_mes = df_mes.groupby(["Año", "Mes"], as_index=False)["Importe"].sum()
 
-            # Asegurarse de que todos los meses estén presentes, incluso si no hay datos
+            # Asegurarse de que todos los meses estén presentes para cada año, incluso si no hay datos
             meses_completos = pd.DataFrame({
                 'Mes': list(range(1, 13))  # Meses del 1 al 12
             })
 
-            # Hacer un merge para unir los meses completos con las ventas, llenando con 0 los meses faltantes
-            ventas_mes = pd.merge(meses_completos, ventas_mes, on='Mes', how='left').fillna(0)
+            # Crear una lista para almacenar los DataFrames de cada año con los meses completos
+            df_completo = pd.DataFrame()
+            for año in ventas_mes["Año"].unique():
+                ventas_año = ventas_mes[ventas_mes["Año"] == año]
+                ventas_año = pd.merge(meses_completos, ventas_año, on="Mes", how="left").fillna({"Importe": 0})
+                ventas_año["Año"] = año  # Asegurar que la columna "Año" esté presente
+                df_completo = pd.concat([df_completo, ventas_año], ignore_index=True)
 
             # Asegurarse de que la columna Importe sea de tipo numérico
-            ventas_mes["Importe"] = ventas_mes["Importe"].astype(float)
-
-            # Ordenar los meses (esto debería ser redundante pero lo incluimos por seguridad)
-            ventas_mes = ventas_mes.sort_values(by='Mes')
+            df_completo["Importe"] = df_completo["Importe"].astype(float)
 
             # Formatear la columna Importe
-            ventas_mes["Importe_formateado"] = ventas_mes["Importe"].apply(lambda x: "{:,.0f}".format(x))
+            df_completo["Importe_formateado"] = df_completo["Importe"].apply(lambda x: "{:,.0f}".format(x))
 
-            # Calcular el total de ventas para el año seleccionado
-            total_ventas = ventas_mes["Importe"].sum()
-            total_ventas_formateado = "{:,.0f}".format(total_ventas)
-
-            # Crear gráfico de barras para mostrar ventas por mes
-            bars_mes = alt.Chart(ventas_mes).mark_bar(color='#FFA07A').encode(
+            # Crear gráfico de líneas para mostrar ventas por mes, con una línea por cada año
+            line_chart = alt.Chart(df_completo).mark_line().encode(
                 x=alt.X('Mes:O', title='Mes', axis=alt.Axis(format='d')),
                 y=alt.Y('Importe:Q', title='Importe Total'),
-                color=alt.Color('Mes:O', legend=None),
-                text='Importe_formateado:N'
+                color=alt.Color('Año:N', title='Año'),  # Diferenciar las líneas por color según el año
+                tooltip=['Año', 'Mes', 'Importe_formateado']
             ).properties(
-                title=f'Ventas por Mes en {año_seleccionado} (Total: {ventas_mes["Importe"].sum():,.0f})'
+                title="Ventas por Mes" if año_seleccionado == "Todos los años" else f'Ventas por Mes en {año_seleccionado}'
             )
 
-            # Añadir etiquetas de texto en las barras
-            text_mes = bars_mes.mark_text(
-                align='center',
+            # Añadir puntos en las líneas
+            line_points = line_chart.mark_point(size=50)
+
+            # Añadir etiquetas de texto en los puntos
+            line_text = line_chart.mark_text(
+                align='left',
                 baseline='middle',
-                dy=-10  # Desplaza el texto hacia arriba
+                dx=7  # Desplaza el texto hacia la derecha
             ).encode(
                 text='Importe_formateado:N'
             )
 
             # Mostrar gráfico
-            st.altair_chart(bars_mes + text_mes, use_container_width=True)
+            st.altair_chart(line_chart + line_points + line_text, use_container_width=True)
 
 
     elif opcion == "SKU's Analysis":
