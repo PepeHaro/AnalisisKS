@@ -193,8 +193,11 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
 
         if año_seleccionado:
             if año_seleccionado == "Todos los años":
-                # Filtrar todas las filas, sin excluir años
-                df_mes = df.copy()
+                # Multiselect para elegir los años específicos a mostrar
+                años_elegidos = st.multiselect("Selecciona los años que deseas visualizar", df["Año"].unique(), default=df["Año"].unique())
+
+                # Filtrar el DataFrame según los años seleccionados
+                df_mes = df[df["Año"].isin(años_elegidos)]
             else:
                 # Filtrar datos por el año seleccionado
                 df_mes = df[df["Año"] == año_seleccionado]
