@@ -287,7 +287,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 color_scale = alt.Scale(domain=unique_clients, range=palette)
 
                 # Mostrar el total de ventas del año a la izquierda de la gráfica
-                st.write(f"Total de Ventas en {año_seleccionado}: ${total_ventas_año:,.2f}")
+                st.markdown(f"#### Total de Ventas en {año_seleccionado}: ${total_ventas_año:,.2f}")
 
                 # Crear gráfica de pastel para mostrar el porcentaje de ventas por cliente, ordenando la leyenda
                 pie_chart = alt.Chart(ventas_por_cliente).mark_arc().encode(
