@@ -16,7 +16,7 @@ def get_cliente_name(identifier):
         return "Cliente desconocido"
 
 # Título de la aplicación
-st.title("ANÁLISIS MK")
+st.title("ANÁLISIS MKkkk")
 
 # Barra lateral para la selección de pestañas
 st.sidebar.title("Navegación")
@@ -252,7 +252,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             # Mostrar gráfico
             st.altair_chart(line_chart + line_points + line_text, use_container_width=True)
             
-    st.markdown("## Hola")
+
         # Selección de años para analizar porcentaje de ventas por cliente
         st.subheader("Porcentaje de Ventas por Cliente :pie_chart:")
         años_seleccionados = st.multiselect("Selecciona el/los año(s) para el análisis", df["Año"].unique(), default=df["Año"].unique())
