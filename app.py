@@ -277,13 +277,13 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 # Ordenar los clientes por porcentaje de mayor a menor
                 ventas_por_cliente = ventas_por_cliente.sort_values(by="Porcentaje", ascending=False)
 
-                # Formatear el nombre del cliente con el porcentaje para que se muestre en el eje y y en la leyenda
+                # Formatear el nombre del cliente con el porcentaje solo para la leyenda y el tooltip
                 ventas_por_cliente["Cliente con %"] = ventas_por_cliente.apply(
                     lambda x: f"{x['Cliente']} ({x['Porcentaje']:.2f}%)", axis=1
                 )
 
                 # Generar colores automáticos usando Seaborn
-                unique_clients = ventas_por_cliente["Cliente con %"].unique()
+                unique_clients = ventas_por_cliente["Cliente"].unique()
                 palette = sns.color_palette("tab10", len(unique_clients)).as_hex()
                 color_scale = alt.Scale(domain=unique_clients, range=palette)
 
@@ -292,11 +292,11 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
 
                 # Crear gráfica de barras horizontales para mostrar el porcentaje de ventas por cliente, con colores y leyenda
                 bar_chart = alt.Chart(ventas_por_cliente).mark_bar().encode(
-                    y=alt.Y("Cliente con %:N", sort='-x', title="Cliente"),  # Mostrar el nombre del cliente con porcentaje en el eje y
+                    y=alt.Y("Cliente:N", sort='-x', title="Cliente"),  # Mostrar solo el nombre del cliente en el eje y
                     x=alt.X("Importe:Q", title="Importe Total"),
-                    color=alt.Color("Cliente with %:N", scale=color_scale, title="Cliente"),
+                    color=alt.Color("Cliente:N", scale=color_scale, title="Cliente"),
                     tooltip=[
-                        alt.Tooltip("Cliente with %:N", title="Cliente"),
+                        alt.Tooltip("Cliente con %:N", title="Cliente"),
                         alt.Tooltip("Porcentaje:Q", format=".2f", title="% de Ventas"),
                         alt.Tooltip("Importe:Q", format="$,.2f", title="Importe Total")
                     ]
