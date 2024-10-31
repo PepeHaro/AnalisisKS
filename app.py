@@ -5,6 +5,7 @@ from sklearn.linear_model import LinearRegression
 from datetime import datetime
 import numpy as np
 import sqlite3
+import seaborn as sns
 
 
 # Función para cargar el nombre real del cliente desde secrets sin mostrar un error en pantalla
@@ -275,6 +276,11 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 # Ordenar los clientes por porcentaje de mayor a menor
                 ventas_por_cliente = ventas_por_cliente.sort_values(by="Porcentaje", ascending=False)
 
+                # Generar colores automáticos usando Seaborn
+                unique_clients = ventas_por_cliente["Cliente"].unique()
+                palette = sns.color_palette("tab10", len(unique_clients)).as_hex()
+                color_scale = alt.Scale(domain=unique_clients, range=palette)
+
                 # Formatear el nombre del cliente con el porcentaje para mostrar en la leyenda
                 ventas_por_cliente["Cliente con %"] = ventas_por_cliente.apply(
                     lambda x: f"{x['Cliente']} ({x['Porcentaje']:.2f}%)", axis=1
@@ -283,10 +289,10 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 # Mostrar el total de ventas del año a la izquierda de la gráfica
                 st.markdown(f"### Total de Ventas en {año_seleccionado}: ${total_ventas_año:,.2f}")
 
-                # Crear gráfica de pastel para mostrar el porcentaje de ventas por cliente
+                # Crear gráfica de pastel para mostrar el porcentaje de ventas por cliente, ordenando la leyenda
                 pie_chart = alt.Chart(ventas_por_cliente).mark_arc().encode(
                     theta=alt.Theta(field="Importe", type="quantitative"),
-                    color=alt.Color(field="Cliente con %", type="nominal", title="Cliente"),
+                    color=alt.Color(field="Cliente", scale=color_scale, title="Cliente", sort=unique_clients.tolist()),
                     tooltip=[
                         alt.Tooltip("Cliente con %:N", title="Cliente"),
                         alt.Tooltip("Porcentaje:Q", format=".2f", title="% de Ventas"),
@@ -297,7 +303,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 )
 
                 # Agregar etiquetas de porcentaje en el centro de cada sector (solo para porcentajes significativos)
-                pie_text = pie_chart.mark_text(radius=60, size=12).encode(
+                pie_text = pie_chart.mark_text(radius=80, size=12).encode(
                     text=alt.condition(
                         alt.datum.Porcentaje > 5,  # Mostrar el porcentaje solo si es mayor a 5%
                         alt.Text("Porcentaje:Q", format=".1f"),
