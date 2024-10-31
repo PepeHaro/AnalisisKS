@@ -251,6 +251,29 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
 
             # Mostrar gráfico
             st.altair_chart(line_chart + line_points + line_text, use_container_width=True)
+            
+    # Selección de años para analizar porcentaje de ventas por cliente
+    st.subheader("Porcentaje de Ventas por Cliente :pie_chart:")
+    años_seleccionados = st.multiselect("Selecciona el/los año(s) para el análisis", df["Año"].unique(), default=df["Año"].unique())
+
+    # Filtrar los datos según los años seleccionados
+    df_filtrado = df[df["Año"].isin(años_seleccionados)]
+
+    # Calcular el total de ventas por cliente
+    ventas_por_cliente = df_filtrado.groupby("Cliente")["Importe"].sum().reset_index()
+    ventas_por_cliente["Porcentaje"] = (ventas_por_cliente["Importe"] / ventas_por_cliente["Importe"].sum()) * 100
+
+    # Crear gráfica de pastel para mostrar el porcentaje de ventas por cliente
+    pie_chart = alt.Chart(ventas_por_cliente).mark_arc().encode(
+        theta=alt.Theta(field="Importe", type="quantitative"),
+        color=alt.Color(field="Cliente", type="nominal", title="Cliente"),
+        tooltip=[alt.Tooltip("Cliente:N", title="Cliente"), alt.Tooltip("Porcentaje:Q", format=".2f", title="% de Ventas")]
+    ).properties(
+        title="Distribución de Ventas por Cliente"
+    )
+
+# Mostrar gráfico
+st.altair_chart(pie_chart, use_container_width=True)
 
 
     elif opcion == "SKU's Analysis":
