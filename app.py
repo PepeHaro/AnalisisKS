@@ -280,8 +280,8 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 theta=alt.Theta(field="Importe", type="quantitative"),
                 color=alt.Color(field="Cliente", type="nominal", title="Cliente"),
                 tooltip=[
-                    alt.Tooltip("Cliente con %:N", title="Cliente"),
-                    alt.Tooltip("Importe:Q", format=".2f", title="Importe Total")
+                    alt.Tooltip("Cliente con %:N", title="Cliente y %"),
+                    alt.Tooltip("Importe:Q", format="$,.2f", title="Importe Total")
                 ]
             ).properties(
                 title=f"Distribución de Ventas por Cliente en {año_seleccionado}"
@@ -289,6 +289,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
 
             # Mostrar gráfico
             st.altair_chart(pie_chart, use_container_width=True)
+
 
 
 
