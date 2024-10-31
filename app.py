@@ -254,7 +254,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             
 
         # Selección de un solo año para analizar el porcentaje de ventas por cliente
-        st.subheader("Porcentaje de Ventas por Cliente")
+        st.subheader("Porcentaje de Ventas por Cliente :pie_chart:")
         año_seleccionado = st.selectbox("Selecciona el año para el análisis", df["Año"].unique())
 
         # Filtrar los datos según el año seleccionado
@@ -264,29 +264,32 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
         if df_filtrado.empty:
             st.warning("No hay datos disponibles para el año seleccionado.")
         else:
-            # Calcular el total de ventas por cliente
+            # Calcular el total de ventas por cliente y el total del año
             ventas_por_cliente = df_filtrado.groupby("Cliente")["Importe"].sum().reset_index()
             ventas_por_cliente["Porcentaje"] = (ventas_por_cliente["Importe"] / ventas_por_cliente["Importe"].sum()) * 100
+            total_ventas_año = ventas_por_cliente["Importe"].sum()
+
+            # Mostrar el total de ventas del año a la izquierda de la gráfica
+            st.markdown(f"### Total de Ventas en {año_seleccionado}: ${total_ventas_año:,.2f}")
+
+            # Crear una columna que combine el nombre del cliente y el porcentaje
+            ventas_por_cliente["Cliente con %"] = ventas_por_cliente.apply(lambda x: f"{x['Cliente']} ({x['Porcentaje']:.2f}%)", axis=1)
 
             # Crear gráfica de pastel para mostrar el porcentaje de ventas por cliente
             pie_chart = alt.Chart(ventas_por_cliente).mark_arc().encode(
                 theta=alt.Theta(field="Importe", type="quantitative"),
                 color=alt.Color(field="Cliente", type="nominal", title="Cliente"),
                 tooltip=[
-                    alt.Tooltip("Cliente:N", title="Cliente"), 
-                    alt.Tooltip("Porcentaje:Q", format=".2f", title="% de Ventas")
+                    alt.Tooltip("Cliente con %:N", title="Cliente"),
+                    alt.Tooltip("Importe:Q", format=".2f", title="Importe Total")
                 ]
             ).properties(
                 title=f"Distribución de Ventas por Cliente en {año_seleccionado}"
             )
 
-            # Añadir etiquetas de porcentaje en el gráfico
-            pie_text = pie_chart.mark_text(radius=90, size=12).encode(
-                text=alt.Text("Porcentaje:Q", format=".1f")
-            )
-
             # Mostrar gráfico
-            st.altair_chart(pie_chart + pie_text, use_container_width=True)
+            st.altair_chart(pie_chart, use_container_width=True)
+
 
 
 
