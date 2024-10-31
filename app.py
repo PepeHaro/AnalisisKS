@@ -255,7 +255,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             
 
         # Selección de un solo año para analizar el porcentaje de ventas por cliente
-        st.subheader("Porcentaje de Ventas por Cliente :pie_chart:")
+        st.subheader("Porcentaje de Ventas por Cliente")
 
         # Verificar si el archivo se ha cargado y 'df' está definido
         if 'df' in locals():
@@ -287,7 +287,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 color_scale = alt.Scale(domain=unique_clients, range=palette)
 
                 # Mostrar el total de ventas del año a la izquierda de la gráfica
-                st.markdown(f"### Total de Ventas en {año_seleccionado}: ${total_ventas_año:,.2f}")
+                st.markdown(f"# Total de Ventas en {año_seleccionado}: ${total_ventas_año:,.2f}")
 
                 # Crear gráfica de pastel para mostrar el porcentaje de ventas por cliente, ordenando la leyenda
                 pie_chart = alt.Chart(ventas_por_cliente).mark_arc().encode(
@@ -302,17 +302,8 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                     title=f"Distribución de Ventas por Cliente en {año_seleccionado}"
                 )
 
-                # Agregar etiquetas de porcentaje en el centro de cada sector (solo para porcentajes significativos)
-                pie_text = pie_chart.mark_text(radius=90, size=12, color='white').encode(
-                    text=alt.condition(
-                        alt.datum.Porcentaje > 5,  # Mostrar el porcentaje solo si es mayor a 5%
-                        alt.Text("Porcentaje:Q", format=".1f"),
-                        alt.value("")
-                    )
-                )
-
-                # Mostrar gráfico
-                st.altair_chart(pie_chart + pie_text, use_container_width=True)
+                # Mostrar gráfico sin el porcentaje en los sectores
+                st.altair_chart(pie_chart, use_container_width=True)
         else:
             st.warning("Por favor, sube un archivo CSV para continuar.")
 
