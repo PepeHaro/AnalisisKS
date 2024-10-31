@@ -272,6 +272,9 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 total_ventas_año = ventas_por_cliente["Importe"].sum()
                 ventas_por_cliente["Porcentaje"] = (ventas_por_cliente["Importe"] / total_ventas_año) * 100
 
+                # Ordenar los clientes por porcentaje de mayor a menor
+                ventas_por_cliente = ventas_por_cliente.sort_values(by="Porcentaje", ascending=False)
+
                 # Formatear el nombre del cliente con el porcentaje para mostrar en la leyenda
                 ventas_por_cliente["Cliente con %"] = ventas_por_cliente.apply(
                     lambda x: f"{x['Cliente']} ({x['Porcentaje']:.2f}%)", axis=1
@@ -286,16 +289,27 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                     color=alt.Color(field="Cliente con %", type="nominal", title="Cliente"),
                     tooltip=[
                         alt.Tooltip("Cliente con %:N", title="Cliente"),
+                        alt.Tooltip("Porcentaje:Q", format=".2f", title="% de Ventas"),
                         alt.Tooltip("Importe:Q", format="$,.2f", title="Importe Total")
                     ]
                 ).properties(
                     title=f"Distribución de Ventas por Cliente en {año_seleccionado}"
                 )
 
+                # Agregar etiquetas de porcentaje en el centro de cada sector (solo para porcentajes significativos)
+                pie_text = pie_chart.mark_text(radius=60, size=12).encode(
+                    text=alt.condition(
+                        alt.datum.Porcentaje > 5,  # Mostrar el porcentaje solo si es mayor a 5%
+                        alt.Text("Porcentaje:Q", format=".1f"),
+                        alt.value("")
+                    )
+                )
+
                 # Mostrar gráfico
-                st.altair_chart(pie_chart, use_container_width=True)
+                st.altair_chart(pie_chart + pie_text, use_container_width=True)
         else:
             st.warning("Por favor, sube un archivo CSV para continuar.")
+
 
 
 
