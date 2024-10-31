@@ -305,7 +305,9 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 )
 
                 # Mostrar gráfico de barras horizontales
-                st.alt
+                st.altair_chart(bar_chart, use_container_width=True)
+        else:
+            st.warning("Por favor, sube un archivo CSV para continuar.")
 
 
 
