@@ -289,10 +289,11 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 # Mostrar el total de ventas del año a la izquierda de la gráfica
                 st.markdown(f"#### Total de Ventas en {año_seleccionado}: ${total_ventas_año:,.2f}")
 
-                # Crear gráfica de pastel para mostrar el porcentaje de ventas por cliente, ordenando la leyenda
-                pie_chart = alt.Chart(ventas_por_cliente).mark_arc().encode(
-                    theta=alt.Theta(field="Importe", type="quantitative"),
-                    color=alt.Color(field="Cliente con %", scale=color_scale, title="Cliente", sort=unique_clients.tolist()),
+                # Crear gráfica de barras horizontales para mostrar el porcentaje de ventas por cliente, con colores y leyenda
+                bar_chart = alt.Chart(ventas_por_cliente).mark_bar().encode(
+                    y=alt.Y("Cliente con %:N", sort='-x', title="Cliente"),
+                    x=alt.X("Importe:Q", title="Importe Total"),
+                    color=alt.Color("Cliente con %:N", scale=color_scale, title="Cliente"),
                     tooltip=[
                         alt.Tooltip("Cliente con %:N", title="Cliente"),
                         alt.Tooltip("Porcentaje:Q", format=".2f", title="% de Ventas"),
@@ -302,8 +303,8 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                     title=f"Distribución de Ventas por Cliente en {año_seleccionado}"
                 )
 
-                # Mostrar gráfico sin el porcentaje en los sectores
-                st.altair_chart(pie_chart, use_container_width=True)
+                # Mostrar gráfico de barras horizontales
+                st.altair_chart(bar_chart, use_container_width=True)
         else:
             st.warning("Por favor, sube un archivo CSV para continuar.")
 
