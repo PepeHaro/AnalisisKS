@@ -255,8 +255,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             
 
 
-
-        # Selección de un solo año para analizar el porcentaje de ventas por cliente
+# % VENTAS
         st.subheader("Porcentaje de Ventas por Cliente")
 
         # Verificar si el archivo se ha cargado y 'df' está definido
@@ -278,7 +277,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 # Ordenar los clientes por porcentaje de mayor a menor
                 ventas_por_cliente = ventas_por_cliente.sort_values(by="Porcentaje", ascending=False)
 
-                # Crear columna con nombre y porcentaje para la leyenda y tooltip
+                # Crear columna con nombre y porcentaje solo para la leyenda y el tooltip
                 ventas_por_cliente["Cliente con %"] = ventas_por_cliente.apply(
                     lambda x: f"{x['Cliente']} ({x['Porcentaje']:.2f}%)", axis=1
                 )
