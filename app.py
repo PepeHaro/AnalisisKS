@@ -273,8 +273,8 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             title="Distribución de Ventas por Cliente"
         )
 
-# Mostrar gráfico
-st.altair_chart(pie_chart, use_container_width=True)
+        # Mostrar gráfico
+        st.altair_chart(pie_chart, use_container_width=True)
 
 
     elif opcion == "SKU's Analysis":
