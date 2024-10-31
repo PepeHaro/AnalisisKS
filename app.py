@@ -255,6 +255,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             
 
 
+
         # Selección de un solo año para analizar el porcentaje de ventas por cliente
         st.subheader("Porcentaje de Ventas por Cliente")
 
@@ -277,7 +278,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 # Ordenar los clientes por porcentaje de mayor a menor
                 ventas_por_cliente = ventas_por_cliente.sort_values(by="Porcentaje", ascending=False)
 
-                # Formatear el nombre del cliente con el porcentaje solo para la leyenda y el tooltip
+                # Crear columna con nombre y porcentaje para la leyenda y tooltip
                 ventas_por_cliente["Cliente con %"] = ventas_por_cliente.apply(
                     lambda x: f"{x['Cliente']} ({x['Porcentaje']:.2f}%)", axis=1
                 )
@@ -292,7 +293,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
 
                 # Crear gráfica de barras horizontales para mostrar el porcentaje de ventas por cliente, con colores y leyenda
                 bar_chart = alt.Chart(ventas_por_cliente).mark_bar().encode(
-                    y=alt.Y("Cliente:N", sort='-x', title="Cliente"),  # Mostrar solo el nombre del cliente en el eje y
+                    y=alt.Y("Cliente:N", sort='-x', title="Cliente"),  # Solo nombre del cliente en el eje y (izquierda)
                     x=alt.X("Importe:Q", title="Importe Total"),
                     color=alt.Color("Cliente:N", scale=color_scale, title="Cliente"),
                     tooltip=[
