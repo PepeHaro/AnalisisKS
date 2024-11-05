@@ -326,7 +326,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             df_seleccionado = df[(df["Año"].isin(años_seleccionados)) & (df["Cliente"] == cliente_seleccionado)]
 
             if not df_seleccionado.empty:
-                # Agrupar datos por Mes y SKU, sumando la cantidad
+                # Agrupar datos por Año, Mes y SKU, sumando la columna 'Cantidad' para calcular el total fabricado
                 frecuencia_mes_producto_cliente = df_seleccionado.groupby(["Año", "Mes", "SKU"], as_index=False)["Cantidad"].sum()
 
                 # Asegurarse de que la columna Mes sea de tipo numérico
