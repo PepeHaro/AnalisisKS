@@ -309,60 +309,36 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
         else:
             st.warning("Por favor, sube un archivo CSV para continuar.")
         
-        # Análisis de Tendencias de Frecuencia de Productos por Mes para un Cliente usando Gráfico de Líneas Individuales
-        st.subheader("Análisis de Tendencias de Demanda de Productos por Mes para un Cliente (Gráfico de Líneas)")
-
-        # Verificar si el DataFrame 'df' está definido
+        # Mostrar los datos filtrados para revisar las cantidades
+        st.subheader("Verificación de Datos Filtrados")
         if 'df' in locals():
-            # Selección de años para análisis
             años_disponibles = sorted(df["Año"].unique())
             años_seleccionados = st.multiselect("Selecciona los años que deseas analizar", años_disponibles, default=años_disponibles)
-
+            
             # Selección de cliente
             clientes_disponibles = df["Cliente"].unique()
-            cliente_seleccionado = st.selectbox("Selecciona el cliente para el análisis", clientes_disponibles)
+            cliente_seleccionado = st.selectbox("Selecciona el cliente para verificar los datos", clientes_disponibles)
 
             # Filtrar el DataFrame según los años y cliente seleccionado
             df_seleccionado = df[(df["Año"].isin(años_seleccionados)) & (df["Cliente"] == cliente_seleccionado)]
 
             if not df_seleccionado.empty:
-                # Agrupar datos por Año, Mes y SKU, sumando la columna 'Cantidad'
-                frecuencia_mes_producto_cliente = df_seleccionado.groupby(["Año", "Mes", "SKU"], as_index=False)["Cantidad"].sum()
+                # Mostrar el DataFrame filtrado para ver los datos reales antes de cualquier agrupación
+                st.write("### Datos Filtrados (Cliente y Años Seleccionados)")
+                st.dataframe(df_seleccionado)
 
-                # Asegurarse de que la columna Mes sea de tipo numérico
-                frecuencia_mes_producto_cliente["Mes"] = pd.to_numeric(frecuencia_mes_producto_cliente["Mes"], errors='coerce')
+                # Agrupar para mostrar el total de cantidad fabricada de cada producto mes a mes
+                resumen_fabricacion = df_seleccionado.groupby(["Mes", "SKU"], as_index=False)["Cantidad"].sum()
 
-                # Crear gráfico de líneas para visualizar la tendencia de demanda mensual por producto
-                line_chart = alt.Chart(frecuencia_mes_producto_cliente).mark_line().encode(
-                    x=alt.X("Mes:O", title="Mes", axis=alt.Axis(format='d')),
-                    y=alt.Y("Cantidad:Q", title="Cantidad Fabricada"),  # Cantidad fabricada en el eje Y
-                    color=alt.Color("SKU:N", title="Producto (SKU)"),  # Cada SKU tiene su propia línea
-                    tooltip=[
-                        alt.Tooltip("SKU:N", title="Producto"),
-                        alt.Tooltip("Mes:O", title="Mes"),
-                        alt.Tooltip("Cantidad:Q", title="Cantidad Fabricada"),
-                        alt.Tooltip("Año:N", title="Año")
-                    ]
-                ).properties(
-                    title=f"Tendencias de Demanda por Producto y Mes para {cliente_seleccionado} en {', '.join(map(str, años_seleccionados))}",
-                    width=700,
-                    height=400
-                )
-
-                # Mostrar gráfico de líneas
-                st.altair_chart(line_chart, use_container_width=True)
-
-                # Tabla resumen con la cantidad total de productos fabricados por SKU y mes
-                st.write("### Resumen de Cantidad de Productos Fabricados por Producto y Mes para el Cliente Seleccionado")
-                resumen_frecuencia = frecuencia_mes_producto_cliente.pivot_table(
-                    values="Cantidad", index="SKU", columns="Mes", aggfunc="sum", fill_value=0
-                )
-
-                st.dataframe(resumen_frecuencia)
+                # Mostrar la tabla resumen
+                st.write("### Resumen de Cantidad Fabricada por Mes y Producto")
+                st.dataframe(resumen_fabricacion)
+                
             else:
                 st.warning("No hay datos disponibles para el cliente y años seleccionados.")
         else:
             st.warning("Por favor, sube un archivo CSV para continuar.")
+
 
 
 
