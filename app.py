@@ -254,8 +254,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             st.altair_chart(line_chart + line_points + line_text, use_container_width=True)
             
 
-
-
+#% VENTAS
         # Selección de un solo año para analizar el porcentaje de ventas por cliente
         st.subheader("Porcentaje de Ventas por Cliente")
 
@@ -309,12 +308,48 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 st.altair_chart(bar_chart, use_container_width=True)
         else:
             st.warning("Por favor, sube un archivo CSV para continuar.")
+        
 
+        # Análisis de Tendencias de Demanda por Mes y Producto
+        st.subheader("Análisis de Tendencias de Demanda por Mes y Producto")
 
+        # Verificar si el DataFrame 'df' está definido
+        if 'df' in locals():
+            # Agrupar ventas por SKU y Mes
+            ventas_mes_producto = df.groupby(["Mes", "SKU"], as_index=False)["Importe"].sum()
 
+            # Asegurarse de que la columna Mes sea de tipo numérico y ordenar
+            ventas_mes_producto["Mes"] = pd.to_numeric(ventas_mes_producto["Mes"], errors='coerce')
+            ventas_mes_producto = ventas_mes_producto.sort_values(by="Mes")
 
+            # Crear gráfico de calor para visualizar las tendencias de demanda por SKU y mes
+            heatmap = alt.Chart(ventas_mes_producto).mark_rect().encode(
+                x=alt.X("Mes:O", title="Mes", axis=alt.Axis(format='d')),
+                y=alt.Y("SKU:N", title="Producto (SKU)", sort='-x'),
+                color=alt.Color("Importe:Q", scale=alt.Scale(scheme="greens"), title="Ventas Totales"),
+                tooltip=[
+                    alt.Tooltip("SKU:N", title="Producto"),
+                    alt.Tooltip("Mes:O", title="Mes"),
+                    alt.Tooltip("Importe:Q", format="$,.2f", title="Ventas Totales")
+                ]
+            ).properties(
+                title="Patrón de Demanda por Producto y Mes",
+                width=600,
+                height=400
+            )
 
+            # Mostrar gráfico de calor
+            st.altair_chart(heatmap, use_container_width=True)
 
+            # Tabla resumen con la suma total de ventas por SKU y mes
+            st.write("### Resumen de Ventas por Producto y Mes")
+            resumen_ventas = ventas_mes_producto.pivot_table(
+                values="Importe", index="SKU", columns="Mes", aggfunc="sum", fill_value=0
+            ).applymap(lambda x: f"${x:,.2f}")
+
+            st.dataframe(resumen_ventas)
+        else:
+            st.warning("Por favor, sube un archivo CSV para continuar.")
 
 
 
