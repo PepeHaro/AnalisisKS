@@ -309,56 +309,6 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
         else:
             st.warning("Por favor, sube un archivo CSV para continuar.")
         
-        # Análisis de Tendencias de Demanda de Productos por Mes para un Cliente (Gráfico de Líneas)
-        st.subheader("Análisis de Tendencias de Demanda de Productos por Mes para un Cliente (Gráfico de Líneas por Año)")
-
-        # Verificar si el DataFrame 'df' está definido
-        if 'df' in locals():
-            # Selección de años para análisis
-            años_disponibles = sorted(df["Año"].unique())
-            años_seleccionados = st.multiselect("Selecciona los años que deseas analizar", años_disponibles, default=años_disponibles)
-
-            # Selección de cliente
-            clientes_disponibles = df["Cliente"].unique()
-            cliente_seleccionado = st.selectbox("Selecciona el cliente para el análisis", clientes_disponibles)
-
-            # Filtrar el DataFrame según los años y cliente seleccionado
-            df_seleccionado = df[(df["Año"].isin(años_seleccionados)) & (df["Cliente"] == cliente_seleccionado)]
-
-            if not df_seleccionado.empty:
-                # Agrupar datos por Año, Mes y SKU, sumando la columna 'Cantidad'
-                frecuencia_mes_producto_cliente = df_seleccionado.groupby(["Año", "Mes", "SKU"], as_index=False)["Cantidad"].sum()
-
-                # Asegurarse de que la columna Mes sea de tipo numérico para orden adecuado
-                frecuencia_mes_producto_cliente["Mes"] = pd.to_numeric(frecuencia_mes_producto_cliente["Mes"], errors='coerce')
-
-                # Crear gráfico de líneas para visualizar la cantidad fabricada mensualmente por producto y por año
-                line_chart = alt.Chart(frecuencia_mes_producto_cliente).mark_line().encode(
-                    x=alt.X("Mes:O", title="Mes", axis=alt.Axis(format='d')),
-                    y=alt.Y("Cantidad:Q", title="Cantidad Fabricada"),
-                    color=alt.Color("Año:N", title="Año"),  # Colores distintos para cada año
-                    facet=alt.Facet("SKU:N", title="Producto (SKU)", columns=2),  # División en paneles por SKU
-                    tooltip=[
-                        alt.Tooltip("Año:N", title="Año"),
-                        alt.Tooltip("Mes:O", title="Mes"),
-                        alt.Tooltip("Cantidad:Q", title="Cantidad Fabricada")
-                    ]
-                ).properties(
-                    title=f"Tendencias de Demanda de Productos por Mes para {cliente_seleccionado}",
-                    width=300,
-                    height=200
-                ).resolve_scale(
-                    y='independent'  # Escala de eje Y independiente para cada SKU
-                )
-
-                # Mostrar gráfico de líneas
-                st.altair_chart(line_chart, use_container_width=True)
-            else:
-                st.warning("No hay datos disponibles para el cliente y años seleccionados.")
-        else:
-            st.warning("Por favor, sube un archivo CSV para continuar.")
-
-
 
 
     elif opcion == "SKU's Analysis":
