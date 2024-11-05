@@ -309,8 +309,8 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
         else:
             st.warning("Por favor, sube un archivo CSV para continuar.")
         
-        # Análisis de Tendencias de Frecuencia de Productos por Mes para un Cliente usando Gráfico de Barras Apiladas
-        st.subheader("Análisis de Tendencias de Frecuencia de Productos por Mes para un Cliente (Barras Apiladas)")
+        # Análisis de Tendencias de Frecuencia de Productos por Mes para un Cliente usando Gráfico de Líneas Individuales
+        st.subheader("Análisis de Tendencias de Demanda de Productos por Mes para un Cliente (Gráfico de Líneas)")
 
         # Verificar si el DataFrame 'df' está definido
         if 'df' in locals():
@@ -326,17 +326,17 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             df_seleccionado = df[(df["Año"].isin(años_seleccionados)) & (df["Cliente"] == cliente_seleccionado)]
 
             if not df_seleccionado.empty:
-                # Agrupar datos por Año, Mes y SKU, sumando la columna 'Cantidad' para calcular el total fabricado
+                # Agrupar datos por Año, Mes y SKU, sumando la columna 'Cantidad'
                 frecuencia_mes_producto_cliente = df_seleccionado.groupby(["Año", "Mes", "SKU"], as_index=False)["Cantidad"].sum()
 
                 # Asegurarse de que la columna Mes sea de tipo numérico
                 frecuencia_mes_producto_cliente["Mes"] = pd.to_numeric(frecuencia_mes_producto_cliente["Mes"], errors='coerce')
 
-                # Crear gráfico de barras apiladas para visualizar la cantidad fabricada mensualmente por producto
-                barras_apiladas = alt.Chart(frecuencia_mes_producto_cliente).mark_bar().encode(
+                # Crear gráfico de líneas para visualizar la tendencia de demanda mensual por producto
+                line_chart = alt.Chart(frecuencia_mes_producto_cliente).mark_line().encode(
                     x=alt.X("Mes:O", title="Mes", axis=alt.Axis(format='d')),
-                    y=alt.Y("Cantidad:Q", title="Cantidad Fabricada"),
-                    color=alt.Color("SKU:N", title="Producto (SKU)"),
+                    y=alt.Y("Cantidad:Q", title="Cantidad Fabricada"),  # Cantidad fabricada en el eje Y
+                    color=alt.Color("SKU:N", title="Producto (SKU)"),  # Cada SKU tiene su propia línea
                     tooltip=[
                         alt.Tooltip("SKU:N", title="Producto"),
                         alt.Tooltip("Mes:O", title="Mes"),
@@ -349,8 +349,8 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                     height=400
                 )
 
-                # Mostrar gráfico de barras apiladas
-                st.altair_chart(barras_apiladas, use_container_width=True)
+                # Mostrar gráfico de líneas
+                st.altair_chart(line_chart, use_container_width=True)
 
                 # Tabla resumen con la cantidad total de productos fabricados por SKU y mes
                 st.write("### Resumen de Cantidad de Productos Fabricados por Producto y Mes para el Cliente Seleccionado")
@@ -363,7 +363,6 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 st.warning("No hay datos disponibles para el cliente y años seleccionados.")
         else:
             st.warning("Por favor, sube un archivo CSV para continuar.")
-
 
 
 
