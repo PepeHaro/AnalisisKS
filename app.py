@@ -309,8 +309,8 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
         else:
             st.warning("Por favor, sube un archivo CSV para continuar.")
         
-        # Análisis de Frecuencia de Productos por Mes para un Cliente usando Gráfico de Calor
-        st.subheader("Análisis de Frecuencia de Productos por Mes para un Cliente")
+        # Análisis de Tendencias de Frecuencia de Productos por Mes para un Cliente usando Gráfico de Barras Apiladas
+        st.subheader("Análisis de Tendencias de Frecuencia de Productos por Mes para un Cliente (Barras Apiladas)")
 
         # Verificar si el DataFrame 'df' está definido
         if 'df' in locals():
@@ -326,31 +326,31 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             df_seleccionado = df[(df["Año"].isin(años_seleccionados)) & (df["Cliente"] == cliente_seleccionado)]
 
             if not df_seleccionado.empty:
-                # Agrupar los datos por SKU y Mes, usando la columna 'Cantidad'
-                frecuencia_mes_producto_cliente = df_seleccionado.groupby(["Mes", "SKU"], as_index=False)["Cantidad"].sum()
+                # Agrupar datos por Mes y SKU, sumando la cantidad
+                frecuencia_mes_producto_cliente = df_seleccionado.groupby(["Año", "Mes", "SKU"], as_index=False)["Cantidad"].sum()
 
-                # Asegurarse de que la columna Mes sea de tipo numérico y ordenar
+                # Asegurarse de que la columna Mes sea de tipo numérico
                 frecuencia_mes_producto_cliente["Mes"] = pd.to_numeric(frecuencia_mes_producto_cliente["Mes"], errors='coerce')
-                frecuencia_mes_producto_cliente = frecuencia_mes_producto_cliente.sort_values(by="Mes")
 
-                # Crear el gráfico de calor (heatmap)
-                heatmap = alt.Chart(frecuencia_mes_producto_cliente).mark_rect().encode(
+                # Crear gráfico de barras apiladas para visualizar la cantidad fabricada mensualmente por producto
+                barras_apiladas = alt.Chart(frecuencia_mes_producto_cliente).mark_bar().encode(
                     x=alt.X("Mes:O", title="Mes", axis=alt.Axis(format='d')),
-                    y=alt.Y("SKU:N", title="Producto (SKU)", sort='-x'),
-                    color=alt.Color("Cantidad:Q", scale=alt.Scale(scheme="reds"), title="Cantidad Fabricada"),
+                    y=alt.Y("Cantidad:Q", title="Cantidad Fabricada"),
+                    color=alt.Color("SKU:N", title="Producto (SKU)"),
                     tooltip=[
                         alt.Tooltip("SKU:N", title="Producto"),
                         alt.Tooltip("Mes:O", title="Mes"),
-                        alt.Tooltip("Cantidad:Q", title="Cantidad Fabricada")
+                        alt.Tooltip("Cantidad:Q", title="Cantidad Fabricada"),
+                        alt.Tooltip("Año:N", title="Año")
                     ]
                 ).properties(
-                    title=f"Frecuencia de Demanda por Producto y Mes para {cliente_seleccionado} en {', '.join(map(str, años_seleccionados))}",
+                    title=f"Tendencias de Demanda por Producto y Mes para {cliente_seleccionado} en {', '.join(map(str, años_seleccionados))}",
                     width=700,
                     height=400
                 )
 
-                # Mostrar el gráfico de calor
-                st.altair_chart(heatmap, use_container_width=True)
+                # Mostrar gráfico de barras apiladas
+                st.altair_chart(barras_apiladas, use_container_width=True)
 
                 # Tabla resumen con la cantidad total de productos fabricados por SKU y mes
                 st.write("### Resumen de Cantidad de Productos Fabricados por Producto y Mes para el Cliente Seleccionado")
@@ -363,7 +363,6 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 st.warning("No hay datos disponibles para el cliente y años seleccionados.")
         else:
             st.warning("Por favor, sube un archivo CSV para continuar.")
-
 
 
 
