@@ -309,9 +309,8 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
         else:
             st.warning("Por favor, sube un archivo CSV para continuar.")
         
-
-        # Análisis de Tendencias de Demanda por Mes, Producto y Cliente (Cantidad de Productos Fabricados)
-        st.subheader("Análisis de Tendencias de Demanda por Mes, Producto y Cliente (Cantidad de Productos Fabricados)")
+        # Análisis de Frecuencia de Productos por Mes para un Cliente usando Gráfico de Calor
+        st.subheader("Análisis de Frecuencia de Productos por Mes para un Cliente")
 
         # Verificar si el DataFrame 'df' está definido
         if 'df' in locals():
@@ -327,43 +326,44 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             df_seleccionado = df[(df["Año"].isin(años_seleccionados)) & (df["Cliente"] == cliente_seleccionado)]
 
             if not df_seleccionado.empty:
-                # Agrupar datos por SKU y Mes en el DataFrame filtrado, usando la columna 'Cantidad' en lugar de 'Importe'
-                produccion_mes_producto_cliente = df_seleccionado.groupby(["Mes", "SKU"], as_index=False)["Cantidad"].sum()
+                # Agrupar los datos por SKU y Mes, usando la columna 'Cantidad'
+                frecuencia_mes_producto_cliente = df_seleccionado.groupby(["Mes", "SKU"], as_index=False)["Cantidad"].sum()
 
                 # Asegurarse de que la columna Mes sea de tipo numérico y ordenar
-                produccion_mes_producto_cliente["Mes"] = pd.to_numeric(produccion_mes_producto_cliente["Mes"], errors='coerce')
-                produccion_mes_producto_cliente = produccion_mes_producto_cliente.sort_values(by="Mes")
+                frecuencia_mes_producto_cliente["Mes"] = pd.to_numeric(frecuencia_mes_producto_cliente["Mes"], errors='coerce')
+                frecuencia_mes_producto_cliente = frecuencia_mes_producto_cliente.sort_values(by="Mes")
 
-                # Crear gráfico de líneas para visualizar la cantidad fabricada mensualmente por producto
-                line_chart = alt.Chart(produccion_mes_producto_cliente).mark_line().encode(
+                # Crear el gráfico de calor (heatmap)
+                heatmap = alt.Chart(frecuencia_mes_producto_cliente).mark_rect().encode(
                     x=alt.X("Mes:O", title="Mes", axis=alt.Axis(format='d')),
-                    y=alt.Y("Cantidad:Q", title="Cantidad Fabricada"),
-                    color=alt.Color("SKU:N", title="Producto (SKU)"),
+                    y=alt.Y("SKU:N", title="Producto (SKU)", sort='-x'),
+                    color=alt.Color("Cantidad:Q", scale=alt.Scale(scheme="reds"), title="Cantidad Fabricada"),
                     tooltip=[
                         alt.Tooltip("SKU:N", title="Producto"),
                         alt.Tooltip("Mes:O", title="Mes"),
                         alt.Tooltip("Cantidad:Q", title="Cantidad Fabricada")
                     ]
                 ).properties(
-                    title=f"Cantidad de Productos Fabricados por Mes para {cliente_seleccionado} en {', '.join(map(str, años_seleccionados))}",
+                    title=f"Frecuencia de Demanda por Producto y Mes para {cliente_seleccionado} en {', '.join(map(str, años_seleccionados))}",
                     width=700,
                     height=400
                 )
 
-                # Mostrar gráfico de líneas
-                st.altair_chart(line_chart, use_container_width=True)
+                # Mostrar el gráfico de calor
+                st.altair_chart(heatmap, use_container_width=True)
 
-                # Tabla resumen con la cantidad total de productos fabricados por SKU y mes para los años seleccionados
+                # Tabla resumen con la cantidad total de productos fabricados por SKU y mes
                 st.write("### Resumen de Cantidad de Productos Fabricados por Producto y Mes para el Cliente Seleccionado")
-                resumen_produccion = produccion_mes_producto_cliente.pivot_table(
+                resumen_frecuencia = frecuencia_mes_producto_cliente.pivot_table(
                     values="Cantidad", index="SKU", columns="Mes", aggfunc="sum", fill_value=0
                 )
 
-                st.dataframe(resumen_produccion)
+                st.dataframe(resumen_frecuencia)
             else:
                 st.warning("No hay datos disponibles para el cliente y años seleccionados.")
         else:
             st.warning("Por favor, sube un archivo CSV para continuar.")
+
 
 
 
