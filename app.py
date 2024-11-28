@@ -391,6 +391,13 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 text='Importe_formateado:N'
             )
 
+            # Determinar el nombre del archivo según el cliente seleccionado
+            if cliente_seleccionado_producto == "Todos los clientes":
+                nombre_archivo = "detalle_productos_vendidos_todos_los_clientes.xlsx"
+            else:
+                # Reemplazar espacios por guiones bajos y convertir a minúsculas para el nombre del archivo
+                nombre_archivo = f"detalle_productos_vendidos_{cliente_seleccionado_producto.replace(' ', '_').lower()}.xlsx"
+
             # Mostrar gráfico
             st.altair_chart(bars_producto + text_producto, use_container_width=True)
 
@@ -408,9 +415,10 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             st.download_button(
                 label="Descargar en Excel",
                 data=buffer,  # Pasamos el buffer como archivo
-                file_name="Detalle de Productos Vendidos.xlsx",  # Nombre del archivo de descarga
+                file_name=nombre_archivo,  # Nombre del archivo de descarga
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
+
 
 
             st.write("---")
