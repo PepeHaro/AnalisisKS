@@ -408,7 +408,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             st.download_button(
                 label="Descargar en Excel",
                 data=buffer,  # Pasamos el buffer como archivo
-                file_name="detalle_productos_vendidos.xlsx",  # Nombre del archivo de descarga
+                file_name="Detalle de Productos Vendidos.xlsx",  # Nombre del archivo de descarga
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
 
