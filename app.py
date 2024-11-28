@@ -351,6 +351,10 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             )
             ventas_producto["Importe_formateado"] = ventas_producto["Importe"].apply(lambda x: "{:,.0f}".format(x))
 
+            # Agregar columna de precio promedio usado ese año (Importe / Cantidad)
+            ventas_producto["Precio Promedio"] = ventas_producto["Importe"] / ventas_producto["Cantidad"]
+            ventas_producto["Precio Promedio"] = ventas_producto["Precio Promedio"].fillna(0).round(2)
+
             # Ordenar y seleccionar la cantidad de productos más vendidos especificados por el usuario
             ventas_producto = ventas_producto.sort_values(by="Importe", ascending=False)
             if cantidad_productos > 0:  # Si cantidad_productos es 0, se muestran todos
@@ -390,9 +394,9 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             # Mostrar gráfico
             st.altair_chart(bars_producto + text_producto, use_container_width=True)
 
-            # Mostrar tabla con SKU, Cantidad, Importe y Porcentaje
+            # Mostrar tabla con SKU, Cantidad, Importe, Precio Promedio y Porcentaje
             st.write(f"### Detalle de Productos Vendidos - Suma de Ventas: {suma_ventas_top_formateado} ({porcentaje_ventas_top_formateado})")
-            st.dataframe(ventas_producto[['SKU', 'Producto', 'Cantidad', 'Importe_formateado', 'Porcentaje_formateado']])
+            st.dataframe(ventas_producto[['SKU', 'Producto', 'Cantidad', 'Importe_formateado', 'Porcentaje_formateado', 'Precio Promedio']])
 
             # Botón para descargar el DataFrame en Excel
             import io  # Importamos io para trabajar con el buffer
