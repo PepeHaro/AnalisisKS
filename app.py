@@ -396,7 +396,8 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             # Botón para descargar el DataFrame en Excel
             import io  # Importamos io para trabajar con el buffer
             buffer = io.BytesIO()  # Creamos un buffer en memoria
-            ventas_producto.to_excel(buffer, index=False, engine='openpyxl')  # Escribimos el DataFrame en el buffer
+            with pd.ExcelWriter(buffer, engine='openpyxl') as writer:  # Usamos ExcelWriter explícitamente
+                ventas_producto.to_excel(writer, index=False, sheet_name='Productos Vendidos')  # Escribimos en el buffer
             buffer.seek(0)  # Movemos el puntero al inicio del buffer
 
             st.download_button(
@@ -405,6 +406,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 file_name="detalle_productos_vendidos.xlsx",  # Nombre del archivo de descarga
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
+
 
             st.write("---")
             # Comparativa por año
