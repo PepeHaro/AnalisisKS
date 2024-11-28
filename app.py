@@ -323,8 +323,11 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
         # Selección de año para análisis de productos
         año_seleccionado_producto = st.selectbox("Selecciona el año para el análisis de productos", df["Año"].unique())
 
-        # Ingresar cantidad de productos a mostrar
-        cantidad_productos = st.number_input("Cantidad de productos a mostrar", min_value=1, max_value=50, value=20, step=1)
+        # Ingresar cantidad de productos a mostrar, permitiendo la opción de "todos"
+        cantidad_productos = st.number_input(
+            "Cantidad de productos a mostrar (ingresa 0 para mostrar todos)", 
+            min_value=0, max_value=50, value=20, step=1
+        )
 
         if cliente_seleccionado_producto and año_seleccionado_producto:
             if cliente_seleccionado_producto == "Todos los clientes":
@@ -348,7 +351,9 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             ventas_producto["Importe_formateado"] = ventas_producto["Importe"].apply(lambda x: "{:,.0f}".format(x))
 
             # Ordenar y seleccionar la cantidad de productos más vendidos especificados por el usuario
-            ventas_producto = ventas_producto.sort_values(by="Importe", ascending=False).head(cantidad_productos)
+            ventas_producto = ventas_producto.sort_values(by="Importe", ascending=False)
+            if cantidad_productos > 0:
+                ventas_producto = ventas_producto.head(cantidad_productos)
 
             # Calcular la suma de ventas de los productos seleccionados
             suma_ventas_top = ventas_producto["Importe"].sum()
@@ -387,6 +392,14 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             # Mostrar tabla con SKU, Cantidad, Importe y Porcentaje
             st.write(f"### Detalle de Productos Vendidos - Suma de Ventas: {suma_ventas_top_formateado} ({porcentaje_ventas_top_formateado})")
             st.dataframe(ventas_producto[['SKU', 'Producto', 'Cantidad', 'Importe_formateado', 'Porcentaje_formateado']])
+
+            # Botón para descargar el DataFrame en Excel
+            st.download_button(
+                label="Descargar en Excel",
+                data=ventas_producto.to_excel(index=False, engine='openpyxl'),
+                file_name="detalle_productos_vendidos.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
 
             st.write("---")
             # Comparativa por año
