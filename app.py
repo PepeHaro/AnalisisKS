@@ -6,6 +6,7 @@ from datetime import datetime
 import numpy as np
 import sqlite3
 import seaborn as sns
+import io 
 
 
 # Función para cargar el nombre real del cliente desde secrets sin mostrar un error en pantalla
