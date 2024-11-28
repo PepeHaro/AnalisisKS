@@ -352,7 +352,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
 
             # Ordenar y seleccionar la cantidad de productos más vendidos especificados por el usuario
             ventas_producto = ventas_producto.sort_values(by="Importe", ascending=False)
-            if cantidad_productos > 0:
+            if cantidad_productos > 0:  # Si cantidad_productos es 0, se muestran todos
                 ventas_producto = ventas_producto.head(cantidad_productos)
 
             # Calcular la suma de ventas de los productos seleccionados
@@ -394,10 +394,15 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             st.dataframe(ventas_producto[['SKU', 'Producto', 'Cantidad', 'Importe_formateado', 'Porcentaje_formateado']])
 
             # Botón para descargar el DataFrame en Excel
+            import io  # Importamos io para trabajar con el buffer
+            buffer = io.BytesIO()  # Creamos un buffer en memoria
+            ventas_producto.to_excel(buffer, index=False, engine='openpyxl')  # Escribimos el DataFrame en el buffer
+            buffer.seek(0)  # Movemos el puntero al inicio del buffer
+
             st.download_button(
                 label="Descargar en Excel",
-                data=ventas_producto.to_excel(index=False, engine='openpyxl'),
-                file_name="detalle_productos_vendidos.xlsx",
+                data=buffer,  # Pasamos el buffer como archivo
+                file_name="detalle_productos_vendidos.xlsx",  # Nombre del archivo de descarga
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
 
