@@ -435,33 +435,31 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
 
             # Filtrar el DataFrame según el cliente y año seleccionados
             if cliente_seleccionado == "Todos los clientes":
-                df_filtrado = df[df["Año"] == año_seleccionado]
+                df_producto = df[df["Año"] == año_seleccionado]
             else:
-                df_filtrado = df[(df["Cliente"] == cliente_seleccionado) & (df["Año"] == año_seleccionado)]
+                df_producto = df[(df["Cliente"] == cliente_seleccionado) & (df["Año"] == año_seleccionado)]
 
-            # Conversión de fechas y regeneración de la columna "Mes"
-            df_filtrado["Fecha"] = pd.to_datetime(df_filtrado["Fecha"], errors="coerce")
-            df_filtrado = df_filtrado.dropna(subset=["Fecha"])  # Eliminar filas con fechas inválidas
-            df_filtrado["Mes"] = df_filtrado["Fecha"].dt.month  # Regenerar la columna "Mes" desde la fecha
+            # Asegurarse de que la columna "Cantidad" y "Importe" sean numéricas
+            df_producto["Cantidad"] = pd.to_numeric(df_producto["Cantidad"], errors="coerce").fillna(0)
+            df_producto["Importe"] = pd.to_numeric(df_producto["Importe"], errors="coerce").fillna(0)
 
-            # Asegurar que las columnas "Cantidad", "Importe" y "PrecioU" sean numéricas
-            df_filtrado["Cantidad"] = pd.to_numeric(df_filtrado["Cantidad"], errors="coerce").fillna(0)
-            df_filtrado["Importe"] = pd.to_numeric(df_filtrado["Importe"], errors="coerce").fillna(0)
-            df_filtrado["PrecioU"] = pd.to_numeric(df_filtrado["PrecioU"], errors="coerce").fillna(0)
-
-            # Generar el DataFrame principal desde el cual partiremos
-            df_producto = df_filtrado.groupby(["SKU", "Producto"], as_index=False).agg(
+            # Calcular el precio promedio por SKU/Producto
+            ventas_producto = df_producto.groupby(["SKU", "Producto"], as_index=False).agg(
                 {"Cantidad": "sum", "Importe": "sum"}
             )
-            df_producto["Precio Promedio"] = df_producto["Importe"] / df_producto["Cantidad"]
-            df_producto["Precio Promedio"] = df_producto["Precio Promedio"].fillna(0).round(2)
+            ventas_producto["Precio Promedio"] = ventas_producto["Importe"] / ventas_producto["Cantidad"]
+            ventas_producto["Precio Promedio"] = ventas_producto["Precio Promedio"].fillna(0).round(2)
 
-            # Calcular las ventas (cantidad e importe) por mes para cada SKU/Producto
-            ventas_mensuales = df_filtrado.groupby(["SKU", "Producto", "Mes"], as_index=False).agg(
+            # Calcular las ventas por mes
+            df_producto["Fecha"] = pd.to_datetime(df_producto["Fecha"], errors="coerce")
+            df_producto = df_producto.dropna(subset=["Fecha"])  # Eliminar filas con fechas inválidas
+            df_producto["Mes"] = df_producto["Fecha"].dt.month
+
+            ventas_mensuales = df_producto.groupby(["SKU", "Producto", "Mes"], as_index=False).agg(
                 {"Cantidad": "sum", "Importe": "sum"}
             )
 
-            # Pivotear los datos para obtener Unidades y Monto por cada mes
+            # Pivotear los datos para obtener columnas por mes
             ventas_pivot = ventas_mensuales.pivot_table(
                 index=["SKU", "Producto"],
                 columns="Mes",
@@ -470,28 +468,25 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 fill_value=0
             )
 
-            # Validar los nombres de columnas con los meses en español
+            # Nombres de columnas en español
             meses_espanol = [
                 "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
                 "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
             ]
 
             ventas_pivot.columns = [
-                f"Unidades {meses_espanol[col[1]-1]}" if col[0] == "Cantidad" and isinstance(col[1], int) and 1 <= col[1] <= 12
-                else f"Monto {meses_espanol[col[1]-1]}" if col[0] == "Importe" and isinstance(col[1], int) and 1 <= col[1] <= 12
-                else f"{col[0]} OTROS"
+                f"Unidades {meses_espanol[col[1]-1]}" if col[0] == "Cantidad" else f"Monto {meses_espanol[col[1]-1]}"
                 for col in ventas_pivot.columns
             ]
             ventas_pivot = ventas_pivot.reset_index()
 
-            # Combinar todos los SKUs del DataFrame principal con los datos mensuales
-            resultado_final = pd.merge(df_producto, ventas_pivot, on=["SKU", "Producto"], how="left")
+            # Combinar los datos de ventas por producto con los datos mensuales
+            resultado_final = pd.merge(ventas_producto, ventas_pivot, on=["SKU", "Producto"], how="left")
 
-            # Asegurar que todos los meses aparezcan, aunque no tengan datos
+            # Asegurar que todas las columnas de meses existan
             columnas_finales = ["SKU", "Producto", "Precio Promedio"] + [
-                item for mes in meses_espanol for item in (f"Unidades {mes}", f"Monto {mes}")
+                f"Unidades {mes}", f"Monto {mes}" for mes in meses_espanol
             ]
-
             for columna in columnas_finales:
                 if columna not in resultado_final.columns:
                     resultado_final[columna] = 0
