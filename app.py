@@ -490,12 +490,15 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             resultado_final["Cantidad Total"] = resultado_final[cantidad_cols].sum(axis=1)
             resultado_final["Importe Total"] = resultado_final[importe_cols].sum(axis=1)
 
-            # Reorganizar las columnas
+            # Generar la lista de columnas finales
             columnas_finales = ["SKU", "Producto", "Cantidad Total", "Importe Total", "Precio Promedio"] + [
                 f"Unidades {mes}" for mes in meses_espanol
             ] + [
                 f"Monto {mes}" for mes in meses_espanol
             ]
+
+            # Validar que las columnas existen antes de reorganizar
+            columnas_finales = [col for col in columnas_finales if col in resultado_final.columns]
             resultado_final = resultado_final[columnas_finales]
 
             # Mostrar tabla con los datos por mes
