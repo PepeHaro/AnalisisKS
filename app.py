@@ -420,9 +420,11 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 file_name=nombre_archivo,  # Nombre del archivo de descarga
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
-            
+
             # NUEVA SECCIÓN
             st.write("---")
+
+            st.markdown("## VENTAS POR MES")
 
             # Selección de cliente
             clientes_unicos = list(df["Cliente"].unique())
