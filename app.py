@@ -459,7 +459,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 {"Cantidad": "sum", "Importe": "sum"}
             )
 
-            # Pivotear los datos para mostrar Unidades y Monto por cada mes
+            # Pivotear los datos para obtener Unidades y Monto por cada mes
             ventas_pivot = ventas_mensuales.pivot_table(
                 index=["SKU", "Producto"],
                 columns="Mes",
@@ -468,9 +468,11 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 fill_value=0
             )
 
-            # Reestructurar los nombres de columnas para que sigan el formato solicitado
+            # Validar los nombres de columnas con los meses
             ventas_pivot.columns = [
-                f"Unidades {calendar.month_name[col[1]].upper()}" if col[0] == "Cantidad" else f"Monto {calendar.month_name[col[1]].upper()}"
+                f"Unidades {calendar.month_name[col[1]].upper()}" if col[0] == "Cantidad" and isinstance(col[1], int) and 1 <= col[1] <= 12
+                else f"Monto {calendar.month_name[col[1]].upper()}" if col[0] == "Importe" and isinstance(col[1], int) and 1 <= col[1] <= 12
+                else f"{col[0]} OTROS"
                 for col in ventas_pivot.columns
             ]
             ventas_pivot = ventas_pivot.reset_index()
@@ -506,6 +508,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 file_name=f"detalle_mensual_productos_{cliente_seleccionado.replace(' ', '_').lower()}_{año_seleccionado}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
+
 
 
 
