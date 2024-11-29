@@ -446,7 +446,14 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             ventas_mensuales = df_filtrado.groupby(["SKU", "Producto", "Mes"], as_index=False).agg(
                 {"Cantidad": "sum", "Importe": "sum"}
             )
-            ventas_mensuales["Precio Promedio"] = ventas_mensuales["Importe"] / ventas_mensuales["Cantidad"]
+
+            # Reemplazar valores nulos o cero en la columna "Cantidad" para evitar errores en la división
+            ventas_mensuales["Cantidad"] = ventas_mensuales["Cantidad"].replace(0, np.nan)
+
+            # Calcular el precio promedio solo para las filas donde la cantidad no sea cero o nula
+            ventas_mensuales["Precio Promedio"] = (
+                ventas_mensuales["Importe"] / ventas_mensuales["Cantidad"]
+            )
             ventas_mensuales["Precio Promedio"] = ventas_mensuales["Precio Promedio"].fillna(0).round(2)
 
             # Crear columnas por mes (Unidades y Monto)
@@ -485,6 +492,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 file_name=f"detalle_mensual_productos_{cliente_seleccionado.replace(' ', '_').lower()}_{año_seleccionado}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
+
 
 
             st.write("---")
