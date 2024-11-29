@@ -485,7 +485,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
 
             # Asegurar que todas las columnas de meses existan
             columnas_finales = ["SKU", "Producto", "Precio Promedio"] + [
-                f"Unidades {mes}", f"Monto {mes}" for mes in meses_espanol
+                [f"Unidades {mes}", f"Monto {mes}" for mes in meses_espanol]
             ]
             for columna in columnas_finales:
                 if columna not in resultado_final.columns:
