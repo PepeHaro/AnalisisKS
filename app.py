@@ -474,11 +474,19 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
             ]
 
+            # Asegurar que todas las columnas de meses están presentes
             ventas_pivot.columns = [
                 f"Unidades {meses_espanol[col[1]-1]}" if col[0] == "Cantidad" else f"Monto {meses_espanol[col[1]-1]}"
                 for col in ventas_pivot.columns
             ]
             ventas_pivot = ventas_pivot.reset_index()
+
+            # Agregar columnas vacías para los meses faltantes
+            for mes in meses_espanol:
+                if f"Unidades {mes}" not in ventas_pivot.columns:
+                    ventas_pivot[f"Unidades {mes}"] = 0
+                if f"Monto {mes}" not in ventas_pivot.columns:
+                    ventas_pivot[f"Monto {mes}"] = 0
 
             # Combinar los datos de ventas por producto con los datos mensuales
             resultado_final = pd.merge(ventas_producto, ventas_pivot, on=["SKU", "Producto"], how="left")
@@ -490,15 +498,13 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             resultado_final["Cantidad Total"] = resultado_final[cantidad_cols].sum(axis=1)
             resultado_final["Importe Total"] = resultado_final[importe_cols].sum(axis=1)
 
-            # Generar la lista de columnas finales
+            # Reorganizar las columnas
             columnas_finales = ["SKU", "Producto", "Cantidad Total", "Importe Total", "Precio Promedio"] + [
                 f"Unidades {mes}" for mes in meses_espanol
             ] + [
                 f"Monto {mes}" for mes in meses_espanol
             ]
 
-            # Validar que las columnas existen antes de reorganizar
-            columnas_finales = [col for col in columnas_finales if col in resultado_final.columns]
             resultado_final = resultado_final[columnas_finales]
 
             # Mostrar tabla con los datos por mes
@@ -517,6 +523,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 file_name=f"detalle_mensual_productos_{cliente_seleccionado.replace(' ', '_').lower()}_{año_seleccionado}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
+
 
             st.write("---")
             # Comparativa por año
