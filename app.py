@@ -7,8 +7,8 @@ import numpy as np
 import sqlite3
 import seaborn as sns
 import io 
-from pandas.api.types import is_numeric_dtype
 import calendar
+
 
 
 # Función para cargar el nombre real del cliente desde secrets sin mostrar un error en pantalla
@@ -458,7 +458,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             )
             ventas_mensuales["Precio Promedio"] = ventas_mensuales["Precio Promedio"].round(2)
 
-            # Crear columnas por mes (Unidades y Monto)
+            # Crear columnas por mes (Unidades y Monto) con validación
             ventas_pivot = ventas_mensuales.pivot_table(
                 index=["SKU", "Producto"],
                 columns="Mes",
@@ -466,8 +466,11 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 aggfunc="sum",
                 fill_value=0
             ).sort_index(axis=1)
+
+            # Validar las columnas antes de formatear los nombres
             ventas_pivot.columns = [
-                f"{col[0]} {calendar.month_name[col[1]].upper()}" for col in ventas_pivot.columns.values
+                f"{col[0]} {calendar.month_name[col[1]].upper()}" if isinstance(col[1], int) and 1 <= col[1] <= 12 else f"{col[0]} OTROS"
+                for col in ventas_pivot.columns.values
             ]
             ventas_pivot = ventas_pivot.reset_index()
 
@@ -494,6 +497,9 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 file_name=f"detalle_mensual_productos_{cliente_seleccionado.replace(' ', '_').lower()}_{año_seleccionado}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
+
+
+            
 
             st.write("---")
             # Comparativa por año
