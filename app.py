@@ -493,9 +493,9 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             # Combinar los datos de ventas por producto con los datos mensuales
             resultado_final = pd.merge(ventas_producto, ventas_pivot, on=["SKU", "Producto"], how="left")
 
-            # Calcular Cantidad Total e Importe Total
-            resultado_final["Cantidad Total"] = resultado_final[[col for col in resultado_final.columns if col.startswith("Cantidad")]].sum(axis=1)
-            resultado_final["Importe Total"] = resultado_final[[col for col in resultado_final.columns if col.startswith("Importe")]].sum(axis=1)
+            # Calcular Cantidad Total e Importe Total de manera robusta
+            resultado_final["Cantidad Total"] = resultado_final[[col for col in columnas_ordenadas if "Cantidad" in col]].sum(axis=1)
+            resultado_final["Importe Total"] = resultado_final[[col for col in columnas_ordenadas if "Importe" in col]].sum(axis=1)
 
             # Reorganizar las columnas en el orden deseado
             columnas_finales = ["SKU", "Producto", "Cantidad Total", "Importe Total", "Precio Promedio"] + columnas_ordenadas
@@ -517,6 +517,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 file_name=f"detalle_mensual_productos_{cliente_seleccionado.replace(' ', '_').lower()}_{año_seleccionado}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
+
 
 
 
