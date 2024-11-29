@@ -422,25 +422,34 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             # NUEVA SECCIÓN
             st.write("---")
 
+            # Selección de cliente
+            clientes_unicos = list(df["Cliente"].unique())
+            clientes_unicos.insert(0, "Todos los clientes")
+            cliente_seleccionado = st.selectbox("Selecciona un cliente", clientes_unicos)
+
+            # Selección de año
+            años_unicos = list(df["Año"].unique())
+            año_seleccionado = st.selectbox("Selecciona un año", años_unicos)
+
+            # Filtrar el DataFrame según el cliente y año seleccionados
+            if cliente_seleccionado == "Todos los clientes":
+                df_filtrado = df[df["Año"] == año_seleccionado]
+            else:
+                df_filtrado = df[(df["Cliente"] == cliente_seleccionado) & (df["Año"] == año_seleccionado)]
+
             # Conversión de fechas con manejo de errores
-            df_producto["Fecha"] = pd.to_datetime(df_producto["Fecha"], errors='coerce')
-
-            # Verificar si hay valores nulos después de la conversión
-            if df_producto["Fecha"].isnull().any():
-                st.warning("Algunas filas tienen valores no válidos en la columna 'Fecha' y han sido descartadas.")
-                df_producto = df_producto.dropna(subset=["Fecha"])  # Eliminar filas con fechas no válidas
-
-            # Agregar columna de mes
-            df_producto["Mes"] = df_producto["Fecha"].dt.month
+            df_filtrado["Fecha"] = pd.to_datetime(df_filtrado["Fecha"], errors='coerce')
+            df_filtrado = df_filtrado.dropna(subset=["Fecha"])  # Eliminar filas con fechas inválidas
+            df_filtrado["Mes"] = df_filtrado["Fecha"].dt.month
 
             # Calcular ventas por mes y SKU
-            ventas_mensuales = df_producto.groupby(["SKU", "Producto", "Mes"], as_index=False).agg(
+            ventas_mensuales = df_filtrado.groupby(["SKU", "Producto", "Mes"], as_index=False).agg(
                 {"Cantidad": "sum", "Importe": "sum"}
             )
             ventas_mensuales["Precio Promedio"] = ventas_mensuales["Importe"] / ventas_mensuales["Cantidad"]
             ventas_mensuales["Precio Promedio"] = ventas_mensuales["Precio Promedio"].fillna(0).round(2)
 
-            # Pivotear los datos para obtener columnas por mes
+            # Crear columnas por mes (Unidades y Monto)
             ventas_pivot = ventas_mensuales.pivot_table(
                 index=["SKU", "Producto"],
                 columns="Mes",
@@ -448,29 +457,34 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 aggfunc="sum",
                 fill_value=0
             ).sort_index(axis=1)
-            ventas_pivot.columns = [' '.join(map(str, col)).strip() for col in ventas_pivot.columns.values]
+            ventas_pivot.columns = [
+                f"{col[0]} {calendar.month_name[col[1]].upper()}" for col in ventas_pivot.columns.values
+            ]
+            ventas_pivot = ventas_pivot.reset_index()
 
-            # Combinar datos originales con las columnas mensuales
-            ventas_mensuales_final = ventas_pivot.reset_index()
+            # Reordenar las columnas para mostrar "Cantidad" y "Importe" de cada mes juntos
+            meses = [calendar.month_name[i].upper() for i in range(1, 13)]
+            columnas_ordenadas = ["SKU", "Producto", "Precio Promedio"] + [
+                f"{tipo} {mes}" for mes in meses for tipo in ["Cantidad", "Importe"]
+            ]
+            ventas_pivot = ventas_pivot.reindex(columns=[col for col in columnas_ordenadas if col in ventas_pivot.columns])
 
-            # Mostrar tabla con SKU, Producto y datos por mes
-            st.write("### Detalle Mensual de Productos Vendidos")
-            st.dataframe(ventas_mensuales_final)
+            # Mostrar tabla con los datos por mes
+            st.write(f"### Detalle Mensual de Productos Vendidos para {cliente_seleccionado} en {año_seleccionado}")
+            st.dataframe(ventas_pivot)
 
             # Descargar el DataFrame en Excel
             buffer_mensual = io.BytesIO()
             with pd.ExcelWriter(buffer_mensual, engine="openpyxl") as writer:
-                ventas_mensuales_final.to_excel(writer, index=False, sheet_name="Productos Mensuales")
+                ventas_pivot.to_excel(writer, index=False, sheet_name="Productos Mensuales")
             buffer_mensual.seek(0)
 
             st.download_button(
                 label="Descargar en Excel",
                 data=buffer_mensual,
-                file_name=f"detalle_mensual_productos_{cliente_seleccionado_producto.lower().replace(' ', '_')}.xlsx",
+                file_name=f"detalle_mensual_productos_{cliente_seleccionado.replace(' ', '_').lower()}_{año_seleccionado}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-)
-
-
+            )
 
 
             st.write("---")
