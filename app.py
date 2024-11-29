@@ -420,7 +420,6 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 file_name=nombre_archivo,  # Nombre del archivo de descarga
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
-
             # NUEVA SECCIÓN
             st.write("---")
 
@@ -469,10 +468,15 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 fill_value=0
             )
 
-            # Validar los nombres de columnas con los meses
+            # Validar los nombres de columnas con los meses en español
+            meses_espanol = [
+                "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+                "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+            ]
+
             ventas_pivot.columns = [
-                f"Unidades {calendar.month_name[col[1]].upper()}" if col[0] == "Cantidad" and isinstance(col[1], int) and 1 <= col[1] <= 12
-                else f"Monto {calendar.month_name[col[1]].upper()}" if col[0] == "Importe" and isinstance(col[1], int) and 1 <= col[1] <= 12
+                f"Unidades {meses_espanol[col[1]-1]}" if col[0] == "Cantidad" and isinstance(col[1], int) and 1 <= col[1] <= 12
+                else f"Monto {meses_espanol[col[1]-1]}" if col[0] == "Importe" and isinstance(col[1], int) and 1 <= col[1] <= 12
                 else f"{col[0]} OTROS"
                 for col in ventas_pivot.columns
             ]
@@ -482,10 +486,9 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             resultado_final = precio_promedio.merge(ventas_pivot, on=["SKU", "Producto"], how="left")
 
             # Asegurar que todos los meses aparezcan, aunque no tengan datos
-            meses = [calendar.month_name[i].upper() for i in range(1, 13)]
             columnas_finales = ["SKU", "Producto", "Precio Promedio"] + [
-                f"Unidades {mes}" for mes in meses
-            ] + [f"Monto {mes}" for mes in meses]
+                f"Unidades {mes}", f"Monto {mes}" for mes in meses_espanol
+            ]
 
             for columna in columnas_finales:
                 if columna not in resultado_final.columns:
