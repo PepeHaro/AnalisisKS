@@ -438,18 +438,17 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 df_filtrado = df[(df["Cliente"] == cliente_seleccionado) & (df["Año"] == año_seleccionado)]
 
             # Conversión de fechas con manejo de errores
-            df_filtrado["Fecha"] = pd.to_datetime(df_filtrado["Fecha"], errors='coerce')
+            df_filtrado["Fecha"] = pd.to_datetime(df_filtrado["Fecha"], errors="coerce")
             df_filtrado = df_filtrado.dropna(subset=["Fecha"])  # Eliminar filas con fechas inválidas
-            df_filtrado["Mes"] = df_filtrado["Fecha"].dt.month
+
+            # Asegurar que las columnas "Cantidad" e "Importe" sean numéricas
+            df_filtrado["Cantidad"] = pd.to_numeric(df_filtrado["Cantidad"], errors="coerce").fillna(0)
+            df_filtrado["Importe"] = pd.to_numeric(df_filtrado["Importe"], errors="coerce").fillna(0)
 
             # Calcular ventas por mes y SKU
             ventas_mensuales = df_filtrado.groupby(["SKU", "Producto", "Mes"], as_index=False).agg(
                 {"Cantidad": "sum", "Importe": "sum"}
             )
-
-            # Reemplazar valores nulos por 0 en las columnas relevantes
-            ventas_mensuales["Cantidad"] = ventas_mensuales["Cantidad"].fillna(0)
-            ventas_mensuales["Importe"] = ventas_mensuales["Importe"].fillna(0)
 
             # Calcular el precio promedio de manera segura
             ventas_mensuales["Precio Promedio"] = ventas_mensuales.apply(
@@ -493,6 +492,8 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 file_name=f"detalle_mensual_productos_{cliente_seleccionado.replace(' ', '_').lower()}_{año_seleccionado}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
+
+
 
 
 
