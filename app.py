@@ -468,43 +468,37 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 fill_value=0
             )
 
-            # Nombres de columnas en español
+            # Nombres de columnas en español y alternar orden
             meses_espanol = [
                 "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
                 "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
             ]
 
-            # Cambiar el orden a Importe MES, Unidades MES
             ventas_pivot.columns = [
-                f"Monto {meses_espanol[col[1]-1]}" if col[0] == "Importe" else f"Unidades {meses_espanol[col[1]-1]}"
+                f"Importe {meses_espanol[col[1]-1]}" if col[0] == "Importe" else f"Cantidad {meses_espanol[col[1]-1]}"
                 for col in ventas_pivot.columns
             ]
             ventas_pivot = ventas_pivot.reset_index()
 
-            # Asegurar que todas las columnas de meses están presentes
+            # Asegurar que todas las columnas de meses están presentes en el orden correcto
+            columnas_ordenadas = []
             for mes in meses_espanol:
-                if f"Monto {mes}" not in ventas_pivot.columns:
-                    ventas_pivot[f"Monto {mes}"] = 0
-                if f"Unidades {mes}" not in ventas_pivot.columns:
-                    ventas_pivot[f"Unidades {mes}"] = 0
+                columnas_ordenadas.append(f"Importe {mes}")
+                columnas_ordenadas.append(f"Cantidad {mes}")
+
+            for columna in columnas_ordenadas:
+                if columna not in ventas_pivot.columns:
+                    ventas_pivot[columna] = 0
 
             # Combinar los datos de ventas por producto con los datos mensuales
             resultado_final = pd.merge(ventas_producto, ventas_pivot, on=["SKU", "Producto"], how="left")
 
             # Calcular Cantidad Total e Importe Total
-            cantidad_cols = [col for col in resultado_final.columns if col.startswith("Unidades")]
-            importe_cols = [col for col in resultado_final.columns if col.startswith("Monto")]
-
-            resultado_final["Cantidad Total"] = resultado_final[cantidad_cols].sum(axis=1)
-            resultado_final["Importe Total"] = resultado_final[importe_cols].sum(axis=1)
+            resultado_final["Cantidad Total"] = resultado_final[[col for col in resultado_final.columns if col.startswith("Cantidad")]].sum(axis=1)
+            resultado_final["Importe Total"] = resultado_final[[col for col in resultado_final.columns if col.startswith("Importe")]].sum(axis=1)
 
             # Reorganizar las columnas en el orden deseado
-            columnas_finales = ["SKU", "Producto", "Cantidad Total", "Importe Total", "Precio Promedio"] + [
-                f"Monto {mes}" for mes in meses_espanol
-            ] + [
-                f"Unidades {mes}" for mes in meses_espanol
-            ]
-
+            columnas_finales = ["SKU", "Producto", "Cantidad Total", "Importe Total", "Precio Promedio"] + columnas_ordenadas
             resultado_final = resultado_final[columnas_finales]
 
             # Mostrar tabla con los datos por mes
@@ -523,6 +517,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 file_name=f"detalle_mensual_productos_{cliente_seleccionado.replace(' ', '_').lower()}_{año_seleccionado}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
+
 
 
 
