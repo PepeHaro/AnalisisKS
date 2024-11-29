@@ -483,17 +483,19 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             # Combinar los datos de ventas por producto con los datos mensuales
             resultado_final = pd.merge(ventas_producto, ventas_pivot, on=["SKU", "Producto"], how="left")
 
-            # Asegurar que todas las columnas de meses existan
-            columnas_finales = ["SKU", "Producto", "Precio Promedio"] + [
+            # Calcular Cantidad Total e Importe Total
+            cantidad_cols = [col for col in resultado_final.columns if col.startswith("Unidades")]
+            importe_cols = [col for col in resultado_final.columns if col.startswith("Monto")]
+
+            resultado_final["Cantidad Total"] = resultado_final[cantidad_cols].sum(axis=1)
+            resultado_final["Importe Total"] = resultado_final[importe_cols].sum(axis=1)
+
+            # Reorganizar las columnas
+            columnas_finales = ["SKU", "Producto", "Cantidad Total", "Importe Total", "Precio Promedio"] + [
                 f"Unidades {mes}" for mes in meses_espanol
             ] + [
                 f"Monto {mes}" for mes in meses_espanol
             ]
-
-            for columna in columnas_finales:
-                if columna not in resultado_final.columns:
-                    resultado_final[columna] = 0
-
             resultado_final = resultado_final[columnas_finales]
 
             # Mostrar tabla con los datos por mes
@@ -512,16 +514,6 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 file_name=f"detalle_mensual_productos_{cliente_seleccionado.replace(' ', '_').lower()}_{año_seleccionado}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
-
-
-
-
-
-
-
-
-
-            
 
             st.write("---")
             # Comparativa por año
