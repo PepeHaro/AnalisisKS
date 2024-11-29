@@ -447,14 +447,15 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 {"Cantidad": "sum", "Importe": "sum"}
             )
 
-            # Reemplazar valores nulos o cero en la columna "Cantidad" para evitar errores en la división
-            ventas_mensuales["Cantidad"] = ventas_mensuales["Cantidad"].replace(0, np.nan)
+            # Reemplazar valores nulos por 0 en las columnas relevantes
+            ventas_mensuales["Cantidad"] = ventas_mensuales["Cantidad"].fillna(0)
+            ventas_mensuales["Importe"] = ventas_mensuales["Importe"].fillna(0)
 
-            # Calcular el precio promedio solo para las filas donde la cantidad no sea cero o nula
-            ventas_mensuales["Precio Promedio"] = (
-                ventas_mensuales["Importe"] / ventas_mensuales["Cantidad"]
+            # Calcular el precio promedio de manera segura
+            ventas_mensuales["Precio Promedio"] = ventas_mensuales.apply(
+                lambda row: row["Importe"] / row["Cantidad"] if row["Cantidad"] > 0 else 0, axis=1
             )
-            ventas_mensuales["Precio Promedio"] = ventas_mensuales["Precio Promedio"].fillna(0).round(2)
+            ventas_mensuales["Precio Promedio"] = ventas_mensuales["Precio Promedio"].round(2)
 
             # Crear columnas por mes (Unidades y Monto)
             ventas_pivot = ventas_mensuales.pivot_table(
@@ -492,6 +493,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 file_name=f"detalle_mensual_productos_{cliente_seleccionado.replace(' ', '_').lower()}_{año_seleccionado}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
+
 
 
 
