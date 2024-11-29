@@ -458,15 +458,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             )
             ventas_mensuales["Precio Promedio"] = ventas_mensuales["Precio Promedio"].round(2)
 
-            # Crear un DataFrame final con las columnas en el formato solicitado
-            meses = [calendar.month_name[i].upper() for i in range(1, 13)]
-            columnas_finales = ["SKU", "Producto", "Precio Promedio"]
-
-            for mes in meses:
-                columnas_finales.append(f"Unidades {mes}")
-                columnas_finales.append(f"Monto {mes}")
-
-            # Pivotear los datos para obtener Unidades y Monto por mes
+            # Crear columnas por mes (Unidades y Monto) con validación
             ventas_pivot = ventas_mensuales.pivot_table(
                 index=["SKU", "Producto"],
                 columns="Mes",
@@ -475,14 +467,21 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 fill_value=0
             )
 
-            # Reestructurar los nombres de columnas para coincidir con el formato deseado
+            # Reestructurar los nombres de columnas con validación
             ventas_pivot.columns = [
-                f"Unidades {calendar.month_name[col[1]].upper()}" if col[0] == "Cantidad" else f"Monto {calendar.month_name[col[1]].upper()}"
+                f"Unidades {calendar.month_name[col[1]].upper()}" if col[0] == "Cantidad" and isinstance(col[1], int) and 1 <= col[1] <= 12
+                else f"Monto {calendar.month_name[col[1]].upper()}" if col[0] == "Importe" and isinstance(col[1], int) and 1 <= col[1] <= 12
+                else f"{col[0]} OTROS"
                 for col in ventas_pivot.columns
             ]
             ventas_pivot = ventas_pivot.reset_index()
 
             # Asegurar que todas las columnas finales existan en el DataFrame
+            meses = [calendar.month_name[i].upper() for i in range(1, 13)]
+            columnas_finales = ["SKU", "Producto", "Precio Promedio"] + [
+                f"Unidades {mes}" for mes in meses
+            ] + [f"Monto {mes}" for mes in meses]
+
             for columna in columnas_finales:
                 if columna not in ventas_pivot.columns:
                     ventas_pivot[columna] = 0
@@ -505,7 +504,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 data=buffer_mensual,
                 file_name=f"detalle_mensual_productos_{cliente_seleccionado.replace(' ', '_').lower()}_{año_seleccionado}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-)
+            )
 
 
 
