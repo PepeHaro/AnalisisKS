@@ -439,9 +439,10 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             else:
                 df_filtrado = df[(df["Cliente"] == cliente_seleccionado) & (df["Año"] == año_seleccionado)]
 
-            # Conversión de fechas con manejo de errores
+            # Conversión de fechas y regeneración de la columna "Mes"
             df_filtrado["Fecha"] = pd.to_datetime(df_filtrado["Fecha"], errors="coerce")
             df_filtrado = df_filtrado.dropna(subset=["Fecha"])  # Eliminar filas con fechas inválidas
+            df_filtrado["Mes"] = df_filtrado["Fecha"].dt.month  # Regenerar la columna "Mes" desde la fecha
 
             # Asegurar que las columnas "Cantidad", "Importe" y "PrecioU" sean numéricas
             df_filtrado["Cantidad"] = pd.to_numeric(df_filtrado["Cantidad"], errors="coerce").fillna(0)
@@ -508,6 +509,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 file_name=f"detalle_mensual_productos_{cliente_seleccionado.replace(' ', '_').lower()}_{año_seleccionado}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
+
 
 
 
