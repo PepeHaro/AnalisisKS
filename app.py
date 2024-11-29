@@ -485,8 +485,11 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
 
             # Asegurar que todas las columnas de meses existan
             columnas_finales = ["SKU", "Producto", "Precio Promedio"] + [
-                [f"Unidades {mes}", f"Monto {mes}" for mes in meses_espanol]
+                f"Unidades {mes}" for mes in meses_espanol
+            ] + [
+                f"Monto {mes}" for mes in meses_espanol
             ]
+
             for columna in columnas_finales:
                 if columna not in resultado_final.columns:
                     resultado_final[columna] = 0
@@ -509,6 +512,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 file_name=f"detalle_mensual_productos_{cliente_seleccionado.replace(' ', '_').lower()}_{año_seleccionado}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
+
 
 
 
