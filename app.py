@@ -420,6 +420,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 file_name=nombre_archivo,  # Nombre del archivo de descarga
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
+            
             # NUEVA SECCIÓN
             st.write("---")
 
@@ -487,7 +488,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
 
             # Asegurar que todos los meses aparezcan, aunque no tengan datos
             columnas_finales = ["SKU", "Producto", "Precio Promedio"] + [
-                f"Unidades {mes}", f"Monto {mes}" for mes in meses_espanol
+                item for mes in meses_espanol for item in (f"Unidades {mes}", f"Monto {mes}")
             ]
 
             for columna in columnas_finales:
@@ -512,6 +513,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 file_name=f"detalle_mensual_productos_{cliente_seleccionado.replace(' ', '_').lower()}_{año_seleccionado}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
+
 
 
 
