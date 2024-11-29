@@ -458,31 +458,37 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             )
             ventas_mensuales["Precio Promedio"] = ventas_mensuales["Precio Promedio"].round(2)
 
-            # Crear columnas por mes (Unidades y Monto) con validación
+            # Crear un DataFrame final con las columnas en el formato solicitado
+            meses = [calendar.month_name[i].upper() for i in range(1, 13)]
+            columnas_finales = ["SKU", "Producto", "Precio Promedio"]
+
+            for mes in meses:
+                columnas_finales.append(f"Unidades {mes}")
+                columnas_finales.append(f"Monto {mes}")
+
+            # Pivotear los datos para obtener Unidades y Monto por mes
             ventas_pivot = ventas_mensuales.pivot_table(
                 index=["SKU", "Producto"],
                 columns="Mes",
                 values=["Cantidad", "Importe"],
                 aggfunc="sum",
                 fill_value=0
-            ).sort_index(axis=1)
+            )
 
-            # Validar las columnas antes de formatear los nombres
+            # Reestructurar los nombres de columnas para coincidir con el formato deseado
             ventas_pivot.columns = [
-                f"{col[0]} {calendar.month_name[col[1]].upper()}" if isinstance(col[1], int) and 1 <= col[1] <= 12 else f"{col[0]} OTROS"
-                for col in ventas_pivot.columns.values
+                f"Unidades {calendar.month_name[col[1]].upper()}" if col[0] == "Cantidad" else f"Monto {calendar.month_name[col[1]].upper()}"
+                for col in ventas_pivot.columns
             ]
             ventas_pivot = ventas_pivot.reset_index()
 
-            # Eliminar columnas duplicadas
-            ventas_pivot = ventas_pivot.loc[:, ~ventas_pivot.columns.duplicated()]
+            # Asegurar que todas las columnas finales existan en el DataFrame
+            for columna in columnas_finales:
+                if columna not in ventas_pivot.columns:
+                    ventas_pivot[columna] = 0
 
-            # Reordenar las columnas para mostrar "Cantidad" y "Importe" de cada mes juntos
-            meses = [calendar.month_name[i].upper() for i in range(1, 13)]
-            columnas_ordenadas = ["SKU", "Producto", "Precio Promedio"] + [
-                f"{tipo} {mes}" for mes in meses for tipo in ["Cantidad", "Importe"]
-            ]
-            ventas_pivot = ventas_pivot.reindex(columns=[col for col in columnas_ordenadas if col in ventas_pivot.columns])
+            # Reordenar las columnas en el orden deseado
+            ventas_pivot = ventas_pivot[columnas_finales]
 
             # Mostrar tabla con los datos por mes
             st.write(f"### Detalle Mensual de Productos Vendidos para {cliente_seleccionado} en {año_seleccionado}")
@@ -499,7 +505,8 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 data=buffer_mensual,
                 file_name=f"detalle_mensual_productos_{cliente_seleccionado.replace(' ', '_').lower()}_{año_seleccionado}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
+)
+
 
 
 
