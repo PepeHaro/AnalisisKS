@@ -422,8 +422,16 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             # NUEVA SECCIÓN
             st.write("---")
 
+            # Conversión de fechas con manejo de errores
+            df_producto["Fecha"] = pd.to_datetime(df_producto["Fecha"], errors='coerce')
+
+            # Verificar si hay valores nulos después de la conversión
+            if df_producto["Fecha"].isnull().any():
+                st.warning("Algunas filas tienen valores no válidos en la columna 'Fecha' y han sido descartadas.")
+                df_producto = df_producto.dropna(subset=["Fecha"])  # Eliminar filas con fechas no válidas
+
             # Agregar columna de mes
-            df_producto["Mes"] = pd.to_datetime(df_producto["Fecha"]).dt.month
+            df_producto["Mes"] = df_producto["Fecha"].dt.month
 
             # Calcular ventas por mes y SKU
             ventas_mensuales = df_producto.groupby(["SKU", "Producto", "Mes"], as_index=False).agg(
@@ -460,7 +468,8 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 data=buffer_mensual,
                 file_name=f"detalle_mensual_productos_{cliente_seleccionado_producto.lower().replace(' ', '_')}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
+)
+
 
 
 
