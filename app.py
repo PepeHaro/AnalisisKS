@@ -455,6 +455,9 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             )
             precio_promedio.rename(columns={"PrecioU": "Precio Promedio"}, inplace=True)
 
+            # Incluir todos los SKUs del cliente/año, incluso si no tienen ventas en algunos meses
+            todos_skus = df_filtrado[["SKU", "Producto"]].drop_duplicates()
+
             # Calcular las ventas (cantidad e importe) por mes para cada SKU/Producto
             ventas_mensuales = df_filtrado.groupby(["SKU", "Producto", "Mes"], as_index=False).agg(
                 {"Cantidad": "sum", "Importe": "sum"}
@@ -484,15 +487,8 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             ventas_pivot = ventas_pivot.reset_index()
 
             # Combinar el precio promedio con las ventas por mes
-            resultado_final = precio_promedio.merge(ventas_pivot, on=["SKU", "Producto"], how="left")
-
-            # Asegurar que todos los SKUs del filtrado inicial estén presentes
-            resultado_final = pd.merge(
-                df_filtrado[["SKU", "Producto"]].drop_duplicates(),
-                resultado_final,
-                on=["SKU", "Producto"],
-                how="left"
-            )
+            resultado_final = pd.merge(todos_skus, precio_promedio, on=["SKU", "Producto"], how="left")
+            resultado_final = pd.merge(resultado_final, ventas_pivot, on=["SKU", "Producto"], how="left")
 
             # Asegurar que todos los meses aparezcan, aunque no tengan datos
             columnas_finales = ["SKU", "Producto", "Precio Promedio"] + [
@@ -521,6 +517,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 file_name=f"detalle_mensual_productos_{cliente_seleccionado.replace(' ', '_').lower()}_{año_seleccionado}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
+
 
 
 
