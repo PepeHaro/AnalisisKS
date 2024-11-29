@@ -7,6 +7,8 @@ import numpy as np
 import sqlite3
 import seaborn as sns
 import io 
+from pandas.api.types import is_numeric_dtype
+import calendar
 
 
 # Función para cargar el nombre real del cliente desde secrets sin mostrar un error en pantalla
@@ -492,11 +494,6 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 file_name=f"detalle_mensual_productos_{cliente_seleccionado.replace(' ', '_').lower()}_{año_seleccionado}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
-
-
-
-
-
 
             st.write("---")
             # Comparativa por año
