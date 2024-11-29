@@ -424,8 +424,6 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             # NUEVA SECCIÓN
             st.write("---")
 
-            st.markdown("## VENTAS POR MES")
-
             # Selección de cliente
             clientes_unicos = list(df["Cliente"].unique())
             clientes_unicos.insert(0, "Todos los clientes")
@@ -456,6 +454,9 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 {"PrecioU": "mean"}
             )
             precio_promedio.rename(columns={"PrecioU": "Precio Promedio"}, inplace=True)
+
+            # Eliminar filas sin SKU válido (vacío, nulo o "-")
+            precio_promedio = precio_promedio[precio_promedio["SKU"].notnull() & (precio_promedio["SKU"] != "-") & (precio_promedio["SKU"] != "")]
 
             # Calcular las ventas (cantidad e importe) por mes para cada SKU/Producto
             ventas_mensuales = df_filtrado.groupby(["SKU", "Producto", "Mes"], as_index=False).agg(
@@ -515,6 +516,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 file_name=f"detalle_mensual_productos_{cliente_seleccionado.replace(' ', '_').lower()}_{año_seleccionado}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
+
 
 
 
