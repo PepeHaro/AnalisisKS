@@ -419,6 +419,49 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
 
+            # NUEVA SECCIÓN
+            st.write("---")
+
+            # Agregar columna de mes
+            df_producto["Mes"] = pd.to_datetime(df_producto["Fecha"]).dt.month
+
+            # Calcular ventas por mes y SKU
+            ventas_mensuales = df_producto.groupby(["SKU", "Producto", "Mes"], as_index=False).agg(
+                {"Cantidad": "sum", "Importe": "sum"}
+            )
+            ventas_mensuales["Precio Promedio"] = ventas_mensuales["Importe"] / ventas_mensuales["Cantidad"]
+            ventas_mensuales["Precio Promedio"] = ventas_mensuales["Precio Promedio"].fillna(0).round(2)
+
+            # Pivotear los datos para obtener columnas por mes
+            ventas_pivot = ventas_mensuales.pivot_table(
+                index=["SKU", "Producto"],
+                columns="Mes",
+                values=["Cantidad", "Importe"],
+                aggfunc="sum",
+                fill_value=0
+            ).sort_index(axis=1)
+            ventas_pivot.columns = [' '.join(map(str, col)).strip() for col in ventas_pivot.columns.values]
+
+            # Combinar datos originales con las columnas mensuales
+            ventas_mensuales_final = ventas_pivot.reset_index()
+
+            # Mostrar tabla con SKU, Producto y datos por mes
+            st.write("### Detalle Mensual de Productos Vendidos")
+            st.dataframe(ventas_mensuales_final)
+
+            # Descargar el DataFrame en Excel
+            buffer_mensual = io.BytesIO()
+            with pd.ExcelWriter(buffer_mensual, engine="openpyxl") as writer:
+                ventas_mensuales_final.to_excel(writer, index=False, sheet_name="Productos Mensuales")
+            buffer_mensual.seek(0)
+
+            st.download_button(
+                label="Descargar en Excel",
+                data=buffer_mensual,
+                file_name=f"detalle_mensual_productos_{cliente_seleccionado_producto.lower().replace(' ', '_')}.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+
 
 
             st.write("---")
