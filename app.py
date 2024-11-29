@@ -449,11 +449,12 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             df_filtrado["Importe"] = pd.to_numeric(df_filtrado["Importe"], errors="coerce").fillna(0)
             df_filtrado["PrecioU"] = pd.to_numeric(df_filtrado["PrecioU"], errors="coerce").fillna(0)
 
-            # Calcular precio promedio por SKU/Producto (una sola vez)
-            precio_promedio = df_filtrado.groupby(["SKU", "Producto"], as_index=False).agg(
-                {"PrecioU": "mean"}
+            # Generar el DataFrame principal desde el cual partiremos
+            df_producto = df_filtrado.groupby(["SKU", "Producto"], as_index=False).agg(
+                {"Cantidad": "sum", "Importe": "sum"}
             )
-            precio_promedio.rename(columns={"PrecioU": "Precio Promedio"}, inplace=True)
+            df_producto["Precio Promedio"] = df_producto["Importe"] / df_producto["Cantidad"]
+            df_producto["Precio Promedio"] = df_producto["Precio Promedio"].fillna(0).round(2)
 
             # Calcular las ventas (cantidad e importe) por mes para cada SKU/Producto
             ventas_mensuales = df_filtrado.groupby(["SKU", "Producto", "Mes"], as_index=False).agg(
@@ -483,14 +484,8 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             ]
             ventas_pivot = ventas_pivot.reset_index()
 
-            # Combinar todos los SKUs únicos del cliente/año con los datos calculados
-            resultado_final = pd.merge(
-                df_filtrado[["SKU", "Producto"]].drop_duplicates(),
-                precio_promedio,
-                on=["SKU", "Producto"],
-                how="left"
-            )
-            resultado_final = pd.merge(resultado_final, ventas_pivot, on=["SKU", "Producto"], how="left")
+            # Combinar todos los SKUs del DataFrame principal con los datos mensuales
+            resultado_final = pd.merge(df_producto, ventas_pivot, on=["SKU", "Producto"], how="left")
 
             # Asegurar que todos los meses aparezcan, aunque no tengan datos
             columnas_finales = ["SKU", "Producto", "Precio Promedio"] + [
