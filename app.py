@@ -443,22 +443,23 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             df_filtrado["Fecha"] = pd.to_datetime(df_filtrado["Fecha"], errors="coerce")
             df_filtrado = df_filtrado.dropna(subset=["Fecha"])  # Eliminar filas con fechas inválidas
 
-            # Asegurar que las columnas "Cantidad" e "Importe" sean numéricas
+            # Asegurar que las columnas "Cantidad", "Importe" y "PrecioU" sean numéricas
             df_filtrado["Cantidad"] = pd.to_numeric(df_filtrado["Cantidad"], errors="coerce").fillna(0)
             df_filtrado["Importe"] = pd.to_numeric(df_filtrado["Importe"], errors="coerce").fillna(0)
+            df_filtrado["PrecioU"] = pd.to_numeric(df_filtrado["PrecioU"], errors="coerce").fillna(0)
 
-            # Calcular ventas por mes y SKU
+            # Calcular precio promedio por SKU/Producto (una sola vez)
+            precio_promedio = df_filtrado.groupby(["SKU", "Producto"], as_index=False).agg(
+                {"PrecioU": "mean"}
+            )
+            precio_promedio.rename(columns={"PrecioU": "Precio Promedio"}, inplace=True)
+
+            # Calcular las ventas (cantidad e importe) por mes para cada SKU/Producto
             ventas_mensuales = df_filtrado.groupby(["SKU", "Producto", "Mes"], as_index=False).agg(
                 {"Cantidad": "sum", "Importe": "sum"}
             )
 
-            # Calcular el precio promedio de manera segura
-            ventas_mensuales["Precio Promedio"] = ventas_mensuales.apply(
-                lambda row: row["Importe"] / row["Cantidad"] if row["Cantidad"] > 0 else 0, axis=1
-            )
-            ventas_mensuales["Precio Promedio"] = ventas_mensuales["Precio Promedio"].round(2)
-
-            # Crear columnas por mes (Unidades y Monto) con validación
+            # Pivotear los datos para mostrar Unidades y Monto por cada mes
             ventas_pivot = ventas_mensuales.pivot_table(
                 index=["SKU", "Producto"],
                 columns="Mes",
@@ -467,36 +468,36 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 fill_value=0
             )
 
-            # Reestructurar los nombres de columnas con validación
+            # Reestructurar los nombres de columnas para que sigan el formato solicitado
             ventas_pivot.columns = [
-                f"Unidades {calendar.month_name[col[1]].upper()}" if col[0] == "Cantidad" and isinstance(col[1], int) and 1 <= col[1] <= 12
-                else f"Monto {calendar.month_name[col[1]].upper()}" if col[0] == "Importe" and isinstance(col[1], int) and 1 <= col[1] <= 12
-                else f"{col[0]} OTROS"
+                f"Unidades {calendar.month_name[col[1]].upper()}" if col[0] == "Cantidad" else f"Monto {calendar.month_name[col[1]].upper()}"
                 for col in ventas_pivot.columns
             ]
             ventas_pivot = ventas_pivot.reset_index()
 
-            # Asegurar que todas las columnas finales existan en el DataFrame
+            # Combinar el precio promedio con las ventas por mes
+            resultado_final = precio_promedio.merge(ventas_pivot, on=["SKU", "Producto"], how="left")
+
+            # Asegurar que todos los meses aparezcan, aunque no tengan datos
             meses = [calendar.month_name[i].upper() for i in range(1, 13)]
             columnas_finales = ["SKU", "Producto", "Precio Promedio"] + [
                 f"Unidades {mes}" for mes in meses
             ] + [f"Monto {mes}" for mes in meses]
 
             for columna in columnas_finales:
-                if columna not in ventas_pivot.columns:
-                    ventas_pivot[columna] = 0
+                if columna not in resultado_final.columns:
+                    resultado_final[columna] = 0
 
-            # Reordenar las columnas en el orden deseado
-            ventas_pivot = ventas_pivot[columnas_finales]
+            resultado_final = resultado_final[columnas_finales]
 
             # Mostrar tabla con los datos por mes
             st.write(f"### Detalle Mensual de Productos Vendidos para {cliente_seleccionado} en {año_seleccionado}")
-            st.dataframe(ventas_pivot)
+            st.dataframe(resultado_final)
 
             # Descargar el DataFrame en Excel
             buffer_mensual = io.BytesIO()
             with pd.ExcelWriter(buffer_mensual, engine="openpyxl") as writer:
-                ventas_pivot.to_excel(writer, index=False, sheet_name="Productos Mensuales")
+                resultado_final.to_excel(writer, index=False, sheet_name="Productos Mensuales")
             buffer_mensual.seek(0)
 
             st.download_button(
@@ -505,6 +506,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 file_name=f"detalle_mensual_productos_{cliente_seleccionado.replace(' ', '_').lower()}_{año_seleccionado}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
+
 
 
 
