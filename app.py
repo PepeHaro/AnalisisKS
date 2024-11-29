@@ -474,19 +474,19 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
             ]
 
-            # Asegurar que todas las columnas de meses están presentes
+            # Cambiar el orden a Importe MES, Unidades MES
             ventas_pivot.columns = [
-                f"Unidades {meses_espanol[col[1]-1]}" if col[0] == "Cantidad" else f"Monto {meses_espanol[col[1]-1]}"
+                f"Monto {meses_espanol[col[1]-1]}" if col[0] == "Importe" else f"Unidades {meses_espanol[col[1]-1]}"
                 for col in ventas_pivot.columns
             ]
             ventas_pivot = ventas_pivot.reset_index()
 
-            # Agregar columnas vacías para los meses faltantes
+            # Asegurar que todas las columnas de meses están presentes
             for mes in meses_espanol:
-                if f"Unidades {mes}" not in ventas_pivot.columns:
-                    ventas_pivot[f"Unidades {mes}"] = 0
                 if f"Monto {mes}" not in ventas_pivot.columns:
                     ventas_pivot[f"Monto {mes}"] = 0
+                if f"Unidades {mes}" not in ventas_pivot.columns:
+                    ventas_pivot[f"Unidades {mes}"] = 0
 
             # Combinar los datos de ventas por producto con los datos mensuales
             resultado_final = pd.merge(ventas_producto, ventas_pivot, on=["SKU", "Producto"], how="left")
@@ -498,11 +498,11 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             resultado_final["Cantidad Total"] = resultado_final[cantidad_cols].sum(axis=1)
             resultado_final["Importe Total"] = resultado_final[importe_cols].sum(axis=1)
 
-            # Reorganizar las columnas
+            # Reorganizar las columnas en el orden deseado
             columnas_finales = ["SKU", "Producto", "Cantidad Total", "Importe Total", "Precio Promedio"] + [
-                f"Unidades {mes}" for mes in meses_espanol
-            ] + [
                 f"Monto {mes}" for mes in meses_espanol
+            ] + [
+                f"Unidades {mes}" for mes in meses_espanol
             ]
 
             resultado_final = resultado_final[columnas_finales]
@@ -523,6 +523,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 file_name=f"detalle_mensual_productos_{cliente_seleccionado.replace(' ', '_').lower()}_{año_seleccionado}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
+
 
 
             st.write("---")
