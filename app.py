@@ -474,6 +474,9 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             ]
             ventas_pivot = ventas_pivot.reset_index()
 
+            # Eliminar columnas duplicadas
+            ventas_pivot = ventas_pivot.loc[:, ~ventas_pivot.columns.duplicated()]
+
             # Reordenar las columnas para mostrar "Cantidad" y "Importe" de cada mes juntos
             meses = [calendar.month_name[i].upper() for i in range(1, 13)]
             columnas_ordenadas = ["SKU", "Producto", "Precio Promedio"] + [
@@ -497,6 +500,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 file_name=f"detalle_mensual_productos_{cliente_seleccionado.replace(' ', '_').lower()}_{año_seleccionado}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
+
 
 
             
