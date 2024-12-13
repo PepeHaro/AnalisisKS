@@ -405,7 +405,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
 
             # Mostrar tabla con SKU, Cantidad, Importe, Precio Promedio y Porcentaje
             st.write(f"#### Ventas: {suma_ventas_top_formateado} - {cliente_seleccionado_producto}   ({porcentaje_ventas_top_formateado})")
-            st.dataframe(ventas_producto[['SKU', 'Producto', 'Cantidad', 'Importe_formateado', 'Porcentaje_formateado', 'Precio Promedio']])
+            st.dataframe(ventas_producto[['SKU', 'Producto', 'Concepto','Cantidad', 'Importe_formateado', 'Porcentaje_formateado', 'Precio Promedio']])
 
             # Botón para descargar el DataFrame en Excel
             import io  # Importamos io para trabajar con el buffer
