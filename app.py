@@ -348,7 +348,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             total_ventas_formateado = "{:,.0f}".format(total_ventas)
 
             # Agrupar ventas por SKU y Producto, uniendo productos con el mismo SKU y sumando cantidades correctamente
-            ventas_producto = df_producto.groupby(["SKU", "Producto"], as_index=False).agg(
+            ventas_producto = df_producto.groupby(["SKU", "Producto", "Concepto"], as_index=False).agg(
                 {"Cantidad": "sum", "Importe": "sum"}
             )
             ventas_producto["Importe_formateado"] = ventas_producto["Importe"].apply(lambda x: "{:,.0f}".format(x))
@@ -446,7 +446,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             df_producto["Importe"] = pd.to_numeric(df_producto["Importe"], errors="coerce").fillna(0)
 
             # Calcular el precio promedio por SKU/Producto
-            ventas_producto = df_producto.groupby(["SKU", "Producto", "Concepto"], as_index=False).agg(
+            ventas_producto = df_producto.groupby(["SKU", "Producto"], as_index=False).agg(
                 {"Cantidad": "sum", "Importe": "sum"}
             )
             ventas_producto["Precio Promedio"] = ventas_producto["Importe"] / ventas_producto["Cantidad"]
