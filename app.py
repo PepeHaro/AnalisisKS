@@ -404,7 +404,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             st.altair_chart(bars_producto + text_producto, use_container_width=True)
 
             # Mostrar tabla con SKU, Cantidad, Importe, Precio Promedio y Porcentaje
-            st.write(f"### Ventas: {suma_ventas_top_formateado} - {cliente_seleccionado_producto}   ({porcentaje_ventas_top_formateado})")
+            st.write(f"#### Ventas: {suma_ventas_top_formateado} - {cliente_seleccionado_producto}   ({porcentaje_ventas_top_formateado})")
             st.dataframe(ventas_producto[['SKU', 'Producto', 'Cantidad', 'Importe_formateado', 'Porcentaje_formateado', 'Precio Promedio']])
 
             # Botón para descargar el DataFrame en Excel
@@ -504,7 +504,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             resultado_final = resultado_final[columnas_finales]
 
             # Mostrar tabla con los datos por mes
-            st.write(f"### Detalle Mensual de Productos Vendidos para {cliente_seleccionado} en {año_seleccionado}")
+            st.write(f"#### Detalle Mensual de Productos Vendidos para {cliente_seleccionado} en {año_seleccionado}")
             st.dataframe(resultado_final)
 
             # Descargar el DataFrame en Excel
