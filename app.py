@@ -348,7 +348,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             total_ventas_formateado = "{:,.0f}".format(total_ventas)
 
             # Agrupar ventas por SKU y Producto, uniendo productos con el mismo SKU y sumando cantidades correctamente
-            ventas_producto = df_producto.groupby(["SKU", "Producto"], as_index=False).agg(
+            ventas_producto = df_producto.groupby(["SKU", "Producto", "Concepto"], as_index=False).agg(
                 {"Cantidad": "sum", "Importe": "sum"}
             )
             ventas_producto["Importe_formateado"] = ventas_producto["Importe"].apply(lambda x: "{:,.0f}".format(x))
