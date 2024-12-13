@@ -424,6 +424,8 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             # NUEVA SECCIÓN
             st.write("---")
 
+            st.markdown("## PRODUCTOS VENDIDOS POR MES :chart_with_upwards_trend:")
+
             # Selección de cliente
             clientes_unicos = list(df["Cliente"].unique())
             clientes_unicos.insert(0, "Todos los clientes")
