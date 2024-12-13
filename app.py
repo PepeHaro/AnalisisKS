@@ -347,8 +347,8 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             total_ventas = df_producto["Importe"].sum()
             total_ventas_formateado = "{:,.0f}".format(total_ventas)
 
-            # Agrupar ventas por SKU, Producto y Concepto
-            ventas_producto = df_producto.groupby(["SKU", "Producto", "Concepto"], as_index=False).agg(
+            # Agrupar ventas por SKU y Producto, uniendo productos con el mismo SKU y sumando cantidades correctamente
+            ventas_producto = df_producto.groupby(["SKU", "Producto"], as_index=False).agg(
                 {"Cantidad": "sum", "Importe": "sum"}
             )
             ventas_producto["Importe_formateado"] = ventas_producto["Importe"].apply(lambda x: "{:,.0f}".format(x))
@@ -374,12 +374,12 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             ventas_producto["Porcentaje"] = (ventas_producto["Importe"] / total_ventas) * 100
             ventas_producto["Porcentaje_formateado"] = ventas_producto["Porcentaje"].apply(lambda x: "{:.2f}%".format(x))
 
-            # Crear gráfico de barras para mostrar ventas por SKU, Producto y Concepto
+            # Crear gráfico de barras para mostrar ventas por SKU y Producto
             bars_producto = alt.Chart(ventas_producto).mark_bar().encode(
                 x=alt.X('Producto:O', title='Producto (SKU)', sort='-y'),
                 y=alt.Y('Importe:Q', title='Importe Total'),
                 color=alt.Color('Producto:O', legend=None),
-                tooltip=['SKU:N', 'Producto:N', 'Concepto:N', 'Cantidad:Q', 'Importe_formateado:N', 'Porcentaje_formateado:N']
+                tooltip=['SKU:N', 'Producto:N', 'Cantidad:Q', 'Importe_formateado:N', 'Porcentaje_formateado:N']
             ).properties(
                 title=f'Ventas por Producto en {año_seleccionado_producto} para {cliente_seleccionado_producto} - Total: {total_ventas_formateado}'
             )
@@ -403,9 +403,9 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             # Mostrar gráfico
             st.altair_chart(bars_producto + text_producto, use_container_width=True)
 
-            # Mostrar tabla con SKU, Producto, Concepto, Cantidad, Importe, Precio Promedio y Porcentaje
-            st.write(f"#### Ventas: {suma_ventas_top_formateado} - {cliente_seleccionado_producto}   ({porcentaje_ventas_top_formateado})")
-            st.dataframe(ventas_producto[['SKU', 'Producto', 'Concepto', 'Cantidad', 'Importe_formateado', 'Porcentaje_formateado', 'Precio Promedio']])
+            # Mostrar tabla con SKU, Cantidad, Importe, Precio Promedio y Porcentaje
+            st.write(f"### Ventas: {suma_ventas_top_formateado} - {cliente_seleccionado_producto}   ({porcentaje_ventas_top_formateado})")
+            st.dataframe(ventas_producto[['SKU', 'Producto', 'Cantidad', 'Importe_formateado', 'Porcentaje_formateado', 'Precio Promedio']])
 
             # Botón para descargar el DataFrame en Excel
             import io  # Importamos io para trabajar con el buffer
@@ -420,7 +420,6 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 file_name=nombre_archivo,  # Nombre del archivo de descarga
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
-
 
             # NUEVA SECCIÓN
             st.write("---")
