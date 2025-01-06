@@ -188,6 +188,39 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             st.altair_chart(comparativa_barras + comparativa_text, use_container_width=True)
 
         st.write("---")
+
+        # Agregar DataFrame y multiselect para mostrar datos por cliente y año
+        st.subheader("Datos de Ventas por Cliente y Año")
+        clientes_seleccionados = st.multiselect(
+            "Selecciona los clientes para mostrar en el DataFrame",
+            df["Cliente"].unique()
+        )
+        if clientes_seleccionados:
+            # Filtrar el DataFrame con los clientes seleccionados y el año seleccionado
+            df_filtrado = df[(df["Cliente"].isin(clientes_seleccionados)) & (df["Año"] == año_seleccionado_1)]
+            
+            # Agrupar datos por cliente y sumar la cantidad vendida
+            df_resumen = df_filtrado.groupby(["Cliente", "Año"])["Importe"].sum().reset_index()
+            df_resumen["Importe_formateado"] = df_resumen["Importe"].apply(lambda x: "{:,.0f}".format(x))
+            
+            # Mostrar DataFrame
+            st.dataframe(df_resumen)
+
+            # Crear botón para descargar el DataFrame como archivo Excel
+            import io
+            output = io.BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                df_resumen.to_excel(writer, index=False, sheet_name='Datos')
+                writer.save()
+                processed_data = output.getvalue()
+
+            st.download_button(
+                label="Descargar datos en Excel",
+                data=processed_data,
+                file_name="datos_ventas.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+
         # Selección de año para ventas por mes
         st.subheader("VENTAS POR MES:calendar:")
 
