@@ -186,41 +186,99 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
 
             # Mostrar gráficos comparativos
             st.altair_chart(comparativa_barras + comparativa_text, use_container_width=True)
+        
+        # Código original: Comparativa de ventas entre años
+        st.subheader("COMPARATIVA DE VENTAS ENTRE AÑOS:signal_strength:")
+        cliente_comparativa = st.selectbox("Selecciona el cliente para la comparativa", df["Cliente"].unique())
+        años_disponibles = df["Año"].unique()
+        año_seleccionado_1 = st.selectbox("Selecciona el primer año", años_disponibles)
+        año_seleccionado_2 = st.selectbox("Selecciona el segundo año", años_disponibles)
+
+        if año_seleccionado_1 and año_seleccionado_2:
+            # Filtrar datos por cliente seleccionado para comparación
+            df_comparativa_cliente = df[df["Cliente"] == cliente_comparativa]
+
+            # Filtrar datos por años seleccionados
+            df_año_1 = df_comparativa_cliente[df_comparativa_cliente["Año"] == año_seleccionado_1].groupby("Cliente")["Importe"].sum().reset_index()
+            df_año_2 = df_comparativa_cliente[df_comparativa_cliente["Año"] == año_seleccionado_2].groupby("Cliente")["Importe"].sum().reset_index()
+
+            # Crear un DataFrame para la comparación
+            df_comparativa = pd.DataFrame({
+                'Cliente': [cliente_comparativa] * 2,
+                'Año': [año_seleccionado_1, año_seleccionado_2],
+                'Importe': [df_año_1['Importe'].sum(), df_año_2['Importe'].sum()]
+            })
+
+            # Formatear la columna Importe
+            df_comparativa["Importe_formateado"] = df_comparativa["Importe"].apply(lambda x: "{:,.0f}".format(x))
+
+            # Crear gráfico de barras para la comparativa de ventas entre dos años
+            comparativa_barras = alt.Chart(df_comparativa).mark_bar().encode(
+                x=alt.X('Año:O', title='Año'),
+                y=alt.Y('Importe:Q', title='Importe Total'),
+                color=alt.Color('Año:O', legend=None),
+                text='Importe_formateado:N'
+            ).properties(
+                title=f'Comparativa de Ventas entre {año_seleccionado_1} y {año_seleccionado_2}'
+            )
+
+            # Añadir etiquetas de texto en las barras
+            comparativa_text = comparativa_barras.mark_text(
+                align='center',
+                baseline='middle',
+                dy=-10  # Desplaza el texto hacia arriba
+            ).encode(
+                text='Importe_formateado:N'
+            )
+
+            # Mostrar gráficos comparativos
+            st.altair_chart(comparativa_barras + comparativa_text, use_container_width=True)
 
         st.write("---")
 
-        # Agregar DataFrame y multiselect para mostrar datos por cliente y año
-        st.subheader("Datos de Ventas por Cliente y Año")
+        # Nueva sección: Tabla de datos con multiselect para clientes y años
+        st.subheader("Datos de Ventas: Multiselect por Clientes y Años")
         clientes_seleccionados = st.multiselect(
-            "Selecciona los clientes para mostrar en el DataFrame",
-            df["Cliente"].unique()
+            "Selecciona los clientes",
+            df["Cliente"].unique(),
+            default=df["Cliente"].unique()
         )
-        if clientes_seleccionados:
-            # Filtrar el DataFrame con los clientes seleccionados y el año seleccionado
-            df_filtrado = df[(df["Cliente"].isin(clientes_seleccionados)) & (df["Año"] == año_seleccionado_1)]
-            
-            # Agrupar datos por cliente y sumar la cantidad vendida
+        años_seleccionados = st.multiselect(
+            "Selecciona los años",
+            df["Año"].unique(),
+            default=df["Año"].unique()
+        )
+
+        if clientes_seleccionados and años_seleccionados:
+            # Filtrar datos por clientes y años seleccionados
+            df_filtrado = df[(df["Cliente"].isin(clientes_seleccionados)) & (df["Año"].isin(años_seleccionados))]
+
+            # Agrupar datos por cliente y año
             df_resumen = df_filtrado.groupby(["Cliente", "Año"])["Importe"].sum().reset_index()
             df_resumen["Importe_formateado"] = df_resumen["Importe"].apply(lambda x: "{:,.0f}".format(x))
-            
-            # Mostrar DataFrame
+
+            # Mostrar DataFrame filtrado
             st.dataframe(df_resumen)
 
-            # Crear botón para descargar el DataFrame como archivo Excel
+            # Botón para descargar el DataFrame en Excel
             import io
+            from pandas import ExcelWriter
+
             output = io.BytesIO()
-            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-                df_resumen.to_excel(writer, index=False, sheet_name='Datos')
+            with ExcelWriter(output, engine='xlsxwriter') as writer:
+                df_resumen.to_excel(writer, index=False, sheet_name='Ventas')
                 writer.save()
                 processed_data = output.getvalue()
 
             st.download_button(
                 label="Descargar datos en Excel",
                 data=processed_data,
-                file_name="datos_ventas.xlsx",
+                file_name="datos_ventas_multiselect.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
 
+        st.write("---")
+        
         # Selección de año para ventas por mes
         st.subheader("VENTAS POR MES:calendar:")
 
