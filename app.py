@@ -189,10 +189,10 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
         
         # Código original: Comparativa de ventas entre años
         st.subheader("COMPARATIVA DE VENTAS ENTRE AÑOS:signal_strength:")
-        cliente_comparativa = st.selectbox("Selecciona el cliente para la comparativa", df["Cliente"].unique())
+        cliente_comparativa = st.selectbox("Selecciona el cliente para la comparativa", df["Cliente"].unique(), key="comparativa_cliente")
         años_disponibles = df["Año"].unique()
-        año_seleccionado_1 = st.selectbox("Selecciona el primer año", años_disponibles)
-        año_seleccionado_2 = st.selectbox("Selecciona el segundo año", años_disponibles)
+        año_seleccionado_1 = st.selectbox("Selecciona el primer año", años_disponibles, key="año_1")
+        año_seleccionado_2 = st.selectbox("Selecciona el segundo año", años_disponibles, key="año_2")
 
         if año_seleccionado_1 and año_seleccionado_2:
             # Filtrar datos por cliente seleccionado para comparación
@@ -241,12 +241,14 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
         clientes_seleccionados = st.multiselect(
             "Selecciona los clientes",
             df["Cliente"].unique(),
-            default=df["Cliente"].unique()
+            default=df["Cliente"].unique(),
+            key="clientes_multiselect"
         )
         años_seleccionados = st.multiselect(
             "Selecciona los años",
             df["Año"].unique(),
-            default=df["Año"].unique()
+            default=df["Año"].unique(),
+            key="años_multiselect"
         )
 
         if clientes_seleccionados and años_seleccionados:
@@ -274,11 +276,11 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 label="Descargar datos en Excel",
                 data=processed_data,
                 file_name="datos_ventas_multiselect.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                key="boton_descargar_excel"
             )
 
         st.write("---")
-        
         # Selección de año para ventas por mes
         st.subheader("VENTAS POR MES:calendar:")
 
