@@ -187,7 +187,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             # Mostrar gráficos comparativos
             st.altair_chart(comparativa_barras + comparativa_text, use_container_width=True)
         
-        # Código original: Comparativa de ventas entre años
+       # Código original: Comparativa de ventas entre años
         st.subheader("COMPARATIVA DE VENTAS ENTRE AÑOS:signal_strength:")
         cliente_comparativa = st.selectbox("Selecciona el cliente para la comparativa", df["Cliente"].unique(), key="comparativa_cliente")
         años_disponibles = df["Año"].unique()
@@ -202,41 +202,33 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             df_año_1 = df_comparativa_cliente[df_comparativa_cliente["Año"] == año_seleccionado_1].groupby("Cliente")["Importe"].sum().reset_index()
             df_año_2 = df_comparativa_cliente[df_comparativa_cliente["Año"] == año_seleccionado_2].groupby("Cliente")["Importe"].sum().reset_index()
 
-            # Crear un DataFrame para la comparación
+            # Crear un DataFrame para la comparación con columnas Año1 y Año2
             df_comparativa = pd.DataFrame({
-                'Cliente': [cliente_comparativa] * 2,
-                'Año': [año_seleccionado_1, año_seleccionado_2],
-                'Importe': [df_año_1['Importe'].sum(), df_año_2['Importe'].sum()]
+                'Cliente': [cliente_comparativa],
+                f'Año1 ({año_seleccionado_1})': [df_año_1['Importe'].sum()],
+                f'Año2 ({año_seleccionado_2})': [df_año_2['Importe'].sum()]
             })
 
-            # Formatear la columna Importe
-            df_comparativa["Importe_formateado"] = df_comparativa["Importe"].apply(lambda x: "{:,.0f}".format(x))
+            # Mostrar DataFrame comparativo
+            st.dataframe(df_comparativa)
 
-            # Crear gráfico de barras para la comparativa de ventas entre dos años
-            comparativa_barras = alt.Chart(df_comparativa).mark_bar().encode(
-                x=alt.X('Año:O', title='Año'),
-                y=alt.Y('Importe:Q', title='Importe Total'),
-                color=alt.Color('Año:O', legend=None),
-                text='Importe_formateado:N'
-            ).properties(
-                title=f'Comparativa de Ventas entre {año_seleccionado_1} y {año_seleccionado_2}'
+            # Botón para descargar el DataFrame en Excel
+            import io  # Importamos io para trabajar con el buffer
+            buffer = io.BytesIO()  # Creamos un buffer en memoria
+            with pd.ExcelWriter(buffer, engine='openpyxl') as writer:  # Usamos ExcelWriter explícitamente
+                df_comparativa.to_excel(writer, index=False, sheet_name='Comparativa Ventas')  # Escribimos en el buffer
+            buffer.seek(0)  # Movemos el puntero al inicio del buffer
+
+            st.download_button(
+                label="Descargar en Excel",
+                data=buffer,  # Pasamos el buffer como archivo
+                file_name="comparativa_ventas.xlsx",  # Nombre del archivo de descarga
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
-
-            # Añadir etiquetas de texto en las barras
-            comparativa_text = comparativa_barras.mark_text(
-                align='center',
-                baseline='middle',
-                dy=-10  # Desplaza el texto hacia arriba
-            ).encode(
-                text='Importe_formateado:N'
-            )
-
-            # Mostrar gráficos comparativos
-            st.altair_chart(comparativa_barras + comparativa_text, use_container_width=True)
 
         st.write("---")
 
-        # Nueva sección: Tabla de datos con multiselect para clientes y años
+        # Nueva sección: Multiselect por clientes y años
         st.subheader("Datos de Ventas: Multiselect por Clientes y Años")
         clientes_seleccionados = st.multiselect(
             "Selecciona los clientes",
@@ -255,30 +247,34 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             # Filtrar datos por clientes y años seleccionados
             df_filtrado = df[(df["Cliente"].isin(clientes_seleccionados)) & (df["Año"].isin(años_seleccionados))]
 
-            # Agrupar datos por cliente y año
-            df_resumen = df_filtrado.groupby(["Cliente", "Año"])["Importe"].sum().reset_index()
-            df_resumen["Importe_formateado"] = df_resumen["Importe"].apply(lambda x: "{:,.0f}".format(x))
+            # Crear un DataFrame con columnas dinámicas según los años seleccionados
+            df_resumen = df_filtrado.pivot_table(
+                index="Cliente",
+                columns="Año",
+                values="Importe",
+                aggfunc="sum",
+                fill_value=0
+            ).reset_index()
+
+            # Renombrar columnas para incluir "Año"
+            df_resumen.columns = ["Cliente"] + [f"Año ({col})" for col in df_resumen.columns[1:]]
 
             # Mostrar DataFrame filtrado
             st.dataframe(df_resumen)
 
-            # Botón para descargar el DataFrame en Excel
-            import io
-            from pandas import ExcelWriter
-
-            output = io.BytesIO()
-            with ExcelWriter(output, engine='xlsxwriter') as writer:
-                df_resumen.to_excel(writer, index=False, sheet_name='Ventas')
-                writer.save()
-                processed_data = output.getvalue()
+            # Botón para descargar el DataFrame filtrado en Excel
+            buffer = io.BytesIO()  # Creamos un buffer en memoria
+            with pd.ExcelWriter(buffer, engine='openpyxl') as writer:  # Usamos ExcelWriter explícitamente
+                df_resumen.to_excel(writer, index=False, sheet_name='Ventas Filtradas')  # Escribimos en el buffer
+            buffer.seek(0)  # Movemos el puntero al inicio del buffer
 
             st.download_button(
-                label="Descargar datos en Excel",
-                data=processed_data,
-                file_name="datos_ventas_multiselect.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                key="boton_descargar_excel"
+                label="Descargar en Excel",
+                data=buffer,  # Pasamos el buffer como archivo
+                file_name="ventas_filtradas.xlsx",  # Nombre del archivo de descarga
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
+
 
         st.write("---")
         # Selección de año para ventas por mes
