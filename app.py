@@ -345,28 +345,28 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             # Mostrar gráfico
             st.altair_chart(line_chart + line_points + line_text, use_container_width=True)
 
-            # --- Aquí agregas el cálculo y gráfico para el cambio porcentual mensual ---
-
             # Calcular el cambio porcentual mensual
-            df_completo['Cambio_Porcentual'] = df_completo.groupby('Año')['Importe'].pct_change() * 100
+            if not df_completo.empty:
+                df_completo['Cambio_Porcentual'] = df_completo.groupby('Año')['Importe'].pct_change() * 100
 
-            # Crear gráfico de barras para mostrar el cambio porcentual por mes
-            bar_chart = alt.Chart(df_completo).mark_bar().encode(
-                x=alt.X('Mes:O', title='Mes', axis=alt.Axis(format='d')),
-                y=alt.Y('Cambio_Porcentual:Q', title='Cambio Porcentual', scale=alt.Scale(domain=[-100, 100])),
-                color=alt.Color('Año:N', title='Año'),
-                tooltip=['Año', 'Mes', 'Cambio_Porcentual']
-            ).properties(
-                title="Cambio Porcentual de Ventas por Mes" if año_seleccionado == "Todos los años" else f'Cambio Porcentual de Ventas por Mes en {año_seleccionado}'
-            )
+                # Solo mostrar el gráfico si hay datos
+                if len(df_completo) > 0:
+                    # Crear gráfico de barras para mostrar el cambio porcentual por mes
+                    bar_chart = alt.Chart(df_completo).mark_bar().encode(
+                        x=alt.X('Mes:O', title='Mes', axis=alt.Axis(format='d')),
+                        y=alt.Y('Cambio_Porcentual:Q', title='Cambio Porcentual', scale=alt.Scale(domain=[-100, 100])),
+                        color=alt.Color('Año:N', title='Año'),
+                        tooltip=['Año', 'Mes', 'Cambio_Porcentual']
+                    ).properties(
+                        title="Cambio Porcentual de Ventas por Mes" if año_seleccionado == "Todos los años" else f'Cambio Porcentual de Ventas por Mes en {año_seleccionado}'
+                    )
 
-            # Añadir puntos en las barras
-            bar_points = bar_chart.mark_point(size=50)
+                    # Añadir puntos en las barras
+                    bar_points = bar_chart.mark_point(size=50)
 
-            # Mostrar gráfico de barras
-            st.altair_chart(bar_chart + bar_points, use_container_width=True)
-
-        
+                    # Mostrar gráfico de barras
+                    st.altair_chart(bar_chart + bar_points, use_container_width=True)
+            
             
 
 #% VENTAS
