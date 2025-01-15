@@ -351,8 +351,8 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
 
                 # Solo mostrar el gráfico si hay datos
                 if len(df_completo) > 0:
-                    # Crear gráfico de barras para mostrar el cambio porcentual por mes
-                    bar_chart = alt.Chart(df_completo).mark_bar().encode(
+                    # Crear gráfico de línea para mostrar el cambio porcentual por mes
+                    line_chart_percentual = alt.Chart(df_completo).mark_line().encode(
                         x=alt.X('Mes:O', title='Mes', axis=alt.Axis(format='d')),
                         y=alt.Y('Cambio_Porcentual:Q', title='Cambio Porcentual', scale=alt.Scale(domain=[-100, 100])),
                         color=alt.Color('Año:N', title='Año'),
@@ -361,12 +361,12 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                         title="Cambio Porcentual de Ventas por Mes" if año_seleccionado == "Todos los años" else f'Cambio Porcentual de Ventas por Mes en {año_seleccionado}'
                     )
 
-                    # Añadir puntos en las barras
-                    bar_points = bar_chart.mark_point(size=50)
+                    # Añadir puntos en las líneas
+                    line_points_percentual = line_chart_percentual.mark_point(size=50)
 
-                    # Mostrar gráfico de barras
-                    st.altair_chart(bar_chart + bar_points, use_container_width=True)
-            
+                    # Mostrar gráfico de líneas
+                    st.altair_chart(line_chart_percentual + line_points_percentual, use_container_width=True)
+                
             
 
 #% VENTAS
