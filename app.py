@@ -345,14 +345,18 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             # Mostrar gráfico
             st.altair_chart(line_chart + line_points + line_text, use_container_width=True)
 
-            # Calcular el cambio porcentual mensual
+             # Calcular el cambio porcentual mensual
             if not df_completo.empty:
+                # Asegurarse de que el cambio porcentual se calcule dentro de cada año
                 df_completo['Cambio_Porcentual'] = df_completo.groupby('Año')['Importe'].pct_change() * 100
 
                 # Solo mostrar el gráfico si hay datos
                 if len(df_completo) > 0:
+                    # Filtrar los datos según los años seleccionados en el multiselect
+                    df_filtrado = df_completo[df_completo['Año'].isin(años_elegidos)]
+                    
                     # Crear gráfico de línea para mostrar el cambio porcentual por mes
-                    line_chart_percentual = alt.Chart(df_completo).mark_line().encode(
+                    line_chart_percentual = alt.Chart(df_filtrado).mark_line().encode(
                         x=alt.X('Mes:O', title='Mes', axis=alt.Axis(format='d')),
                         y=alt.Y('Cambio_Porcentual:Q', title='Cambio Porcentual', scale=alt.Scale(domain=[-100, 100])),
                         color=alt.Color('Año:N', title='Año'),
@@ -367,7 +371,6 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                     # Mostrar gráfico de líneas
                     st.altair_chart(line_chart_percentual + line_points_percentual, use_container_width=True)
                 
-            
 
 #% VENTAS
         # Selección de un solo año para analizar el porcentaje de ventas por cliente
