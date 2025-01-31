@@ -390,13 +390,13 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             # Formatear los valores de importe
             promedio_mensual["Importe_formateado"] = promedio_mensual["Importe"].apply(lambda x: "{:,.2f}".format(x))
             
-            # Mostrar los resultados en una tabla
-            st.dataframe(promedio_mensual, hide_index=True)
+            # Mostrar los resultados en una tabla solo con la columna formateada
+            st.dataframe(promedio_mensual[["Cliente", "Año", "Importe_formateado"]], hide_index=True)
             
             # Botón para descargar los datos
             buffer = io.BytesIO()
             with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
-                promedio_mensual.to_excel(writer, index=False, sheet_name='Promedio Mensual Ventas')
+                promedio_mensual[["Cliente", "Año", "Importe_formateado"]].to_excel(writer, index=False, sheet_name='Promedio Mensual Ventas')
             buffer.seek(0)
 
             st.download_button(
@@ -405,7 +405,6 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 file_name="promedio_mensual_ventas.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
-            st.write("---")
 
                 
 
