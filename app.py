@@ -393,7 +393,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             # Mostrar los resultados en una tabla solo con la columna formateada
             col1, col2 = st.columns([3, 1])
             with col1:
-                st.dataframe(promedio_mensual[["Cliente", "Año", "Importe_formateado"]], hide_index=True)
+                st.dataframe(promedio_mensual[["Cliente", "Año", "Importe_formateado"]], hide_index=True, width=700)
             
             # Calcular el promedio total de los años seleccionados
             promedio_total = promedio_mensual["Importe"].mean()
@@ -414,6 +414,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 file_name="promedio_mensual_ventas.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
+
 
                 
 
