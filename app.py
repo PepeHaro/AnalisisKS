@@ -371,6 +371,42 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                     # Mostrar gráfico de líneas
                     st.altair_chart(line_chart_percentual + line_points_percentual, use_container_width=True)
                 
+        # Nueva sección: Ventas mensuales promedio
+        st.write("---")
+        st.subheader("Ventas mensuales promedio")
+
+        # Multiselect para seleccionar clientes y años
+        clientes_promedio = st.multiselect("Selecciona los clientes", df["Cliente"].unique(), key="clientes_promedio")
+        años_promedio = st.multiselect("Selecciona los años", df["Año"].unique(), key="años_promedio")
+
+        if clientes_promedio and años_promedio:
+            # Filtrar datos por clientes y años seleccionados
+            df_promedio = df[(df["Cliente"].isin(clientes_promedio)) & (df["Año"].isin(años_promedio))]
+            
+            # Calcular la venta promedio mensual
+            ventas_mensuales = df_promedio.groupby(["Cliente", "Año", "Mes"])['Importe'].sum().reset_index()
+            promedio_mensual = ventas_mensuales.groupby(["Cliente", "Año"])['Importe'].mean().reset_index()
+            
+            # Formatear los valores de importe
+            promedio_mensual["Importe_formateado"] = promedio_mensual["Importe"].apply(lambda x: "{:,.2f}".format(x))
+            
+            # Mostrar los resultados en una tabla
+            st.dataframe(promedio_mensual, hide_index=True)
+            
+            # Botón para descargar los datos
+            buffer = io.BytesIO()
+            with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+                promedio_mensual.to_excel(writer, index=False, sheet_name='Promedio Mensual Ventas')
+            buffer.seek(0)
+
+            st.download_button(
+                label="Descargar en Excel",
+                data=buffer,
+                file_name="promedio_mensual_ventas.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+
+                
 
 #% VENTAS
         # Selección de un solo año para analizar el porcentaje de ventas por cliente
