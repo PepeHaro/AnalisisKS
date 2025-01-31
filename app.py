@@ -391,7 +391,16 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
             promedio_mensual["Importe_formateado"] = promedio_mensual["Importe"].apply(lambda x: "{:,.2f}".format(x))
             
             # Mostrar los resultados en una tabla solo con la columna formateada
-            st.dataframe(promedio_mensual[["Cliente", "Año", "Importe_formateado"]], hide_index=True)
+            col1, col2 = st.columns([3, 1])
+            with col1:
+                st.dataframe(promedio_mensual[["Cliente", "Año", "Importe_formateado"]], hide_index=True)
+            
+            # Calcular el promedio total de los años seleccionados
+            promedio_total = promedio_mensual["Importe"].mean()
+            promedio_total_formateado = "{:,.2f}".format(promedio_total)
+            
+            with col2:
+                st.metric(label="Promedio total de los años seleccionados", value=promedio_total_formateado)
             
             # Botón para descargar los datos
             buffer = io.BytesIO()
