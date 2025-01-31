@@ -405,6 +405,7 @@ if opcion in ["Sales Analysis", "SKU's Analysis"]:
                 file_name="promedio_mensual_ventas.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
+            st.write("---")
 
                 
 
